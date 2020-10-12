@@ -3,15 +3,16 @@
     <div class="setting-area pt-xxsmall pb-xxsmall">
         {#each settings as {label, fontFamily, fontStyle}, index }
             <Type class="item-label" weight="bold">{label}</Type>
-            <div class="input-selector">
+            <div class="item-setting">
                 <Input id="input-{index}"
                        class="input ml-xxsmall mr-xxsmall"
 	        	       placeholder='Type a font name to search'
                        bind:value={fontFamily}
                        on:input={handleInput}
                        on:keydown={handleInputKeydown}/>
-                <SelectMenu bind:menuItems={fontStylesForMenu[hasMatchedFontFamily ? fontFamily : '_default']}
-                            disabled={!hasMatchedFontFamily}
+                <SelectMenu class="font-style-selector"
+                            bind:menuItems={fontStylesForMenu[hasMatchedFontFamily[index] ? fontFamily : '_default']}
+                            disabled={!hasMatchedFontFamily[index]}
                             bind:value={fontStyle}/>
 	        	<!-- <Icon class="arrow-down" iconName={IconBack}/> -->
 	        </div>
@@ -41,12 +42,12 @@
     import { tick } from 'svelte';
 	import { GlobalCSS } from 'figma-plugin-ds-svelte';
 	import { Button, Input, SelectMenu, SelectItem, Type, OnboardingTip } from 'figma-plugin-ds-svelte';
-	// import { Icon, IconBack } from 'figma-plugin-ds-svelte';
 
+    const defaultFontStyles = ['Regular', 'Plain']
 	let fontsNameCache = [] 
     let fontsList = []
     let fontStylesForMenu = {}
-    let hasMatchedFontFamily = false
+    let hasMatchedFontFamily = []
     let optionalMatchType = [
         {"value":"english","label":"English","group":'Language',"selected":false},
         {"value":"chinese","label":"Chinese","group":'Language',"selected":false},
@@ -76,8 +77,6 @@
         }
     ]
     let settingsValueOldCache = []
-
-    $: console.log(fontStylesForMenu._default)
 
 	onmessage = (event) => {
 
@@ -111,7 +110,7 @@
                     if (font.family) {
 
                         result[font.family] = font.styles.map((style, index) => {
-                            return {value: style, label: style, group: null, selected: style === 'Regular'}
+                            return {value: style, label: style, group: null, selected: defaultFontStyles.includes(style)}
                         })
 
                     }
@@ -132,7 +131,15 @@
 
     function apply() {
 
-        parent.postMessage({ pluginMessage: { type: 'apply', data: settings } }, '*')
+        const simplifiedSettings = settings.map((setting) => {
+            
+            const {label, name, fontFamily, fontStyle} = setting
+
+            return {label, name, fontFamily, fontStyle: fontStyle.value}
+
+        })
+
+        parent.postMessage({ pluginMessage: { type: 'apply', data: simplifiedSettings } }, '*')
 
     }
     
@@ -156,23 +163,22 @@
                 const selectionStartIndex = value.length
                 const selectionEndIndex = targetFontName.length
 
-                hasMatchedFontFamily = true
+                hasMatchedFontFamily[index] = true
                 settings[index].fontFamily = targetFontName
             
                 tick().then(() => {
-                    // console.log('set')
                     getInputElement(index).setSelectionRange(selectionStartIndex, selectionEndIndex)
                 })
             
             } else {
 
-                hasMatchedFontFamily = false
+                hasMatchedFontFamily[index] = false
 
             }
 
         } else {
 
-            hasMatchedFontFamily = false
+            hasMatchedFontFamily[index] = false
 
         }
 
@@ -231,12 +237,6 @@
     flex: none;
     display: flex;
     justify-content: flex-end;
-    /* position: fixed; */
-    /* bottom: 0;
-    left: 0;
-    width: 100%; */
-    /* background-color: rgba(255, 255, 255, .9); */
-    /* z-index: 1; */
 
 }
 
@@ -257,14 +257,20 @@
 
 }
 
-.input-selector {
+.item-setting {
 
     display: flex;
     align-items: center;
 
 }
 
-.input-selector:hover > :global(.arrow-down) {
+.item-setting > :global(div:nth-of-type(2)) {
+
+    flex: auto;
+
+}
+
+.item-setting:hover > :global(.arrow-down) {
 
     background-color: var(--silver);
     opacity: 1;
@@ -274,10 +280,12 @@
 
 :global(.input) {
 
-    flex: auto;
+    width: 60%;
     margin: 0;
+    flex: none;
 
 }
+
 
 :global(.arrow-down) {
 
@@ -308,5 +316,4 @@
     display: none;
 
 }
-
 </style>
