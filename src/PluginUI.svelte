@@ -113,8 +113,10 @@
 
                     if (font.family) {
 
+                        const defaultFontStyle = decideDefaultFontStyle(font.styles)
+
                         result[font.family] = font.styles.map((style, index) => {
-                            return {value: style, label: style, group: null, selected: font.styles.length === 1 || defaultFontStyles.includes(style)}
+                            return {value: style, label: style, group: null, selected: style === defaultFontStyle}
                         })
 
                     }
@@ -213,6 +215,18 @@
     function getInputElement(index) {
 
         return document.querySelector(`#input-${index}`)
+
+    }
+
+    function decideDefaultFontStyle(fontStyles) {
+
+        const defaultFontStyle = fontStyles.find(i => defaultFontStyles.includes(i))
+
+        if (defaultFontStyle) {
+            return defaultFontStyle
+        } else {
+            return fontStyles[fontStyles.length - 1]
+        }
 
     }
 
