@@ -3,10 +3,10 @@
     <div class="setting-area pt-xxsmall pb-xxsmall">
         {#each settings as {label, fontFamily, fontStyle}, index }
             <Type class="item-label" weight="bold">{label}</Type>
-            <div class="item-setting">
+            <div class="item-setting mb-xxsmall">
                 <Input id="input-{index}"
                        class="input ml-xxsmall mr-xxsmall"
-	        	       placeholder='Type a font name to search'
+	        	       placeholder='Search a font name'
                        bind:value={fontFamily}
                        on:input={handleInput}
                        on:keydown={handleInputKeydown}/>
@@ -43,10 +43,12 @@
 	import { GlobalCSS } from 'figma-plugin-ds-svelte';
 	import { Button, Input, SelectMenu, SelectItem, Type, OnboardingTip } from 'figma-plugin-ds-svelte';
 
-    const defaultFontStyles = ['Regular', 'Plain']
+    const defaultFontStyles = ['Regular', 'Plain', 'Book']
 	let fontsNameCache = [] 
     let fontsList = []
-    let fontStylesForMenu = {}
+    let fontStylesForMenu = {
+        _default: [{value: '', label: 'Regular', selected: true}]
+    }
     let hasMatchedFontFamily = []
     let optionalMatchType = [
         {"value":"english","label":"English","group":'Language',"selected":false},
@@ -105,21 +107,22 @@
 					return result
                 }, [])
 
-                fontStylesForMenu = fontsList.reduce((result, font) => {
+                fontStylesForMenu = {
+                    ...fontStylesForMenu,
+                    ...fontsList.reduce((result, font) => {
 
                     if (font.family) {
 
                         result[font.family] = font.styles.map((style, index) => {
-                            return {value: style, label: style, group: null, selected: defaultFontStyles.includes(style)}
+                            return {value: style, label: style, group: null, selected: font.styles.length === 1 || defaultFontStyles.includes(style)}
                         })
 
                     }
 
                     return result
 
-                }, {})
-
-                fontStylesForMenu._default = [{value: '', label: 'Regular', selected: true}]
+                    }, {})
+                }
 
                 // console.log(fontsList)
 				break
@@ -237,6 +240,10 @@
     flex: none;
     display: flex;
     justify-content: flex-end;
+    align-items: center;
+    border-top: 1px solid var(--black1);
+    margin: 0 calc(-1 * var(--size-xxsmall));
+    padding: var(--size-xxsmall);
 
 }
 
@@ -260,7 +267,7 @@
 .item-setting {
 
     display: flex;
-    align-items: center;
+    flex-direction: column;
 
 }
 
@@ -280,9 +287,7 @@
 
 :global(.input) {
 
-    width: 60%;
     margin: 0;
-    flex: none;
 
 }
 
@@ -307,7 +312,7 @@
     color: var(--black3-opaque);
     width: 100px;
     text-align: right;
-    transform: translateY(6px);
+    /* transform: translateY(6px); */
 
 }
 
