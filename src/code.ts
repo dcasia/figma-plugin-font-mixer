@@ -2,6 +2,9 @@ const regExpSet: Record<string, RegExp> = {
     english: /\w+/g,
     chinese: /[\u4e00-\u9fa5]+/g,
     portuguese: /[a-zA-Z\u00C0-\u00ff]+/g,
+    korean: /([\uac00-\ud7af]|[\u1100-\u11ff]|[\u3130-\u318f]|[\ua960-\ua97f]|[\ud7b0-\ud7ff])+/g,
+    japanese: /[一-龠]+|[ぁ-ゔ]+|[ァ-ヴー]+|[a-zA-Z0-9]+|[ａ-ｚＡ-Ｚ０-９]+|[々〆〤]+/ug,
+    russian: /^[\u0400-\u04FF]+$/g,
     digits: /[0-9]+/g
 }
 

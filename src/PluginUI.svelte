@@ -2,12 +2,13 @@
 
     <div class="main">
         {#if !isAddPanelShown}
-            <div class="setting-area pt-xxsmall pb-xxsmall">
-                    {#each settings as {label, fontFamily, fontStyle}, index }
-                        <div class="setting-item"
-                             class:pt-xxsmall={index > 0}
-                             class:pb-xxsmall={index < settings.length -1}>
+            <div class="setting-area">
+                    {#each settings as {label, name, fontFamily, fontStyle}, index }
+                        <div class="setting-item pt-xxsmall pb-xxsmall">
                             <Type class="item-label" weight="bold">{label}</Type>
+                            <Icon class="remove-button"
+                                  iconName={IconMinus}
+                                  on:click={removeSettingItem(name)}/>
                             <div class="item-setting">
                                 <Input id="input-{index}"
                                        class="input ml-xxsmall mr-xxsmall"
@@ -19,10 +20,19 @@
                                             bind:menuItems={fontStylesForMenu[hasMatchedFontFamily[index] ? fontFamily : '_default']}
                                             disabled={!hasMatchedFontFamily[index]}
                                             bind:value={fontStyle}/>
-	                        	<!-- <Icon class="arrow-down" iconName={IconBack}/> -->
 	                        </div>
                         </div>
                     {/each}
+                    {#if !settings.length}
+                        <div class="content-in-empty-setting-panel">
+                            <Icon class="add-button-in-empty"
+                                  iconName={IconPlus}
+                                  on:click={showAddPanel}/>
+                            <p class="tip-in-empty">
+                                Click "+" to add a match type
+                            </p>
+                        </div>
+                    {/if}
             </div>
         {:else}
             <div class="add-area pt-xxsmall pb-xxsmall">
@@ -50,7 +60,7 @@
             Duplicate types cannot be added
         </span>
         <Button on:click={!isAddPanelShown ? apply : add}
-                disabled={!isAddPanelShown && isApplyButtonDisabled}
+                disabled={!isAddPanelShown && isApplyButtonDisabled || isAddPanelShown && !selectedOptionalMatchType}
                 variant={!isAddPanelShown ? 'primary' : 'secondary' }>
             {!isAddPanelShown ? 'Apply' : 'Add'}
         </Button>
@@ -62,7 +72,7 @@
 
     import { tick } from 'svelte';
 	import { GlobalCSS } from 'figma-plugin-ds-svelte';
-	import { Button, Input, SelectMenu, Type, Icon, IconPlus, IconBack } from 'figma-plugin-ds-svelte';
+	import { Button, Input, SelectMenu, Type, Icon, IconPlus, IconBack, IconMinus } from 'figma-plugin-ds-svelte';
     // import { fade } from 'svelte/transition';
 
     const defaultFontStyles = ['Regular', 'Plain', 'Book']
@@ -76,6 +86,9 @@
         {"value":"english","label":"English","group":'Language',"selected":false},
         {"value":"chinese","label":"Chinese","group":'Language',"selected":false},
         {"value":"portuguese","label":"Portuguese","group":'Language',"selected":false},
+        {"value":"japanese","label":"Japanese","group":'Language',"selected":false},
+        {"value":"korean","label":"Korean","group":'Language',"selected":false},
+        {"value":"russian","label":"Russian","group":'Language',"selected":false},
         {"value":"digits","label":"Digits","group":'Content Type',"selected":false}
     ]
     let selectedOptionalMatchType
@@ -169,6 +182,8 @@
     }
 
     function add() {
+
+        if (!selectedOptionalMatchType) return
 
         const {value, label} = selectedOptionalMatchType
 
@@ -293,6 +308,19 @@
 
     }
 
+    function removeSettingItem(name) {
+
+        const targetIndex = settings.findIndex(i => i.name === name)
+
+        if (targetIndex >= 0) {
+
+            settings.splice(targetIndex, 1)
+            settings = settings
+
+        }
+
+    }
+
 </script>
 
 <style>
@@ -353,6 +381,22 @@
 
 }
 
+:global(.remove-button) {
+
+    position: absolute;
+    top: var(--size-xxsmall);
+    right: 0;
+    opacity: 0;
+
+}
+
+.setting-item:hover :global(.remove-button) {
+
+    opacity: 1;
+
+}
+
+
 :global(.add-button) {
 
     margin-right: auto;
@@ -360,7 +404,7 @@
 
 }
 
-:global(.add-button:hover) {
+:global(.add-button:hover), :global(.remove-button:hover) {
 
     background-color: var(--hover-fill);
 
@@ -396,32 +440,9 @@
 
 }
 
-.item-setting:hover > :global(.arrow-down) {
-
-    background-color: var(--silver);
-    opacity: 1;
-    pointer-events: auto;
-
-}
-
 :global(.input) {
 
     margin: 0;
-
-}
-
-
-:global(.arrow-down) {
-
-    flex: none;
-    width: 30px !important;
-    height: 26px !important;
-    transform: rotate(-90deg);
-    border-radius: 3px;
-    background-color: var(--silver);
-    opacity: 0;
-    pointer-events: none;
-    cursor: pointer;
 
 }
 
@@ -431,7 +452,6 @@
     color: var(--black3-opaque);
     width: 100px;
     text-align: right;
-    /* transform: translateY(6px); */
 
 }
 
@@ -440,4 +460,38 @@
     display: none;
 
 }
+
+.content-in-empty-setting-panel {
+
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+
+}
+
+:global(.add-button-in-empty) {
+
+    background-color: var(--grey);
+    margin-bottom: var(--size-xxxsmall);
+
+}
+
+:global(.add-button-in-empty:hover) {
+
+    background-color: var(--silver);
+
+}
+
+.tip-in-empty {
+
+    font-size: var(--font-size-large);
+    color: var(--black3-opaque);
+    white-space: nowrap;
+
+}
+
 </style>
