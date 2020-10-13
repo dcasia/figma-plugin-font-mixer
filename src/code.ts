@@ -5,7 +5,7 @@ const regExpSet: Record<string, RegExp> = {
     digits: /[0-9]+/g
 }
 
-figma.showUI(__html__, {width: 230, height: 340 });
+figma.showUI(__html__, {width: 240, height: 340 });
 
 figma.listAvailableFontsAsync().then(result => {
 	figma.ui.postMessage({
@@ -76,16 +76,21 @@ async function handleApply(fontSettings) {
 
             // console.log(node.characters.match(targetRegExp))
         
-            node.characters.match(targetRegExp)
-                           .forEach((matchedCharacters) => {
+            const matchedPart = node.characters.match(targetRegExp)
+            
+            if (matchedPart) {
+
+                matchedPart.forEach((matchedCharacters) => {
         
-                // console.log(matchedCharacters)
-        
-                const index = node.characters.indexOf(matchedCharacters)
-        
-                node.setRangeFontName(index, index + matchedCharacters.length, fontStyleToBeApplied)
-        
-            })    
+                    // console.log(matchedCharacters)
+            
+                    const index = node.characters.indexOf(matchedCharacters)
+            
+                    node.setRangeFontName(index, index + matchedCharacters.length, fontStyleToBeApplied)
+            
+                })    
+
+            }
             
         })
 

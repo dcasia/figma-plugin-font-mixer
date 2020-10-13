@@ -1,39 +1,60 @@
 <div class="wrapper pr-xxsmall pl-xxsmall">
 
-    <div class="setting-area pt-xxsmall pb-xxsmall">
-        {#each settings as {label, fontFamily, fontStyle}, index }
-            <Type class="item-label" weight="bold">{label}</Type>
-            <div class="item-setting mb-xxsmall">
-                <Input id="input-{index}"
-                       class="input ml-xxsmall mr-xxsmall"
-	        	       placeholder='Search a font name'
-                       bind:value={fontFamily}
-                       on:input={handleInput}
-                       on:keydown={handleInputKeydown}/>
-                <SelectMenu class="font-style-selector"
-                            bind:menuItems={fontStylesForMenu[hasMatchedFontFamily[index] ? fontFamily : '_default']}
-                            disabled={!hasMatchedFontFamily[index]}
-                            bind:value={fontStyle}/>
-	        	<!-- <Icon class="arrow-down" iconName={IconBack}/> -->
-	        </div>
-        {/each}
+    <div class="main">
+        {#if !isAddPanelShown}
+            <div class="setting-area pt-xxsmall pb-xxsmall">
+                    {#each settings as {label, fontFamily, fontStyle}, index }
+                        <div class="setting-item"
+                             class:pt-xxsmall={index > 0}
+                             class:pb-xxsmall={index < settings.length -1}>
+                            <Type class="item-label" weight="bold">{label}</Type>
+                            <div class="item-setting">
+                                <Input id="input-{index}"
+                                       class="input ml-xxsmall mr-xxsmall"
+	                        	       placeholder='Search a font name'
+                                       bind:value={fontFamily}
+                                       on:input={handleInput}
+                                       on:keydown={handleInputKeydown}/>
+                                <SelectMenu class="font-style-selector"
+                                            bind:menuItems={fontStylesForMenu[hasMatchedFontFamily[index] ? fontFamily : '_default']}
+                                            disabled={!hasMatchedFontFamily[index]}
+                                            bind:value={fontStyle}/>
+	                        	<!-- <Icon class="arrow-down" iconName={IconBack}/> -->
+	                        </div>
+                        </div>
+                    {/each}
+            </div>
+        {:else}
+            <div class="add-area pt-xxsmall pb-xxsmall">
+                <Type class="item-label" weight="bold">Add a new match type</Type>
+                <SelectMenu bind:menuItems={optionalMatchType}
+                            bind:value={selectedOptionalMatchType}
+                            showGroupLabels/>
+                <!-- <Disclosure>
+                    <DisclosureItem title="Custom type">Content here</DisclosureItem>
+                </Disclosure>  -->
+            </div>
+        {/if}
     </div>
 
 	<div class="bottom-area pt-xxsmall pb-xxsmall">
-        <!-- <Button on:click={cancel} variant="secondary" class="mr-xsmall">Add</Button> -->
-        <span class="enable-apply-tips mr-xxsmall"
-              class:hidden={!isApplyButtonDisabled}>
+        <Icon class="add-button"
+              iconName={!isAddPanelShown ? IconPlus : IconBack}
+              on:click={!isAddPanelShown ? showAddPanel : showSettingPanel}/>
+        <span class="tips mr-xxsmall"
+              class:hidden={!isApplyButtonDisabled || isAddPanelShown}>
             Select nodes contain editable text
         </span>
-		<Button on:click={apply} bind:disabled={isApplyButtonDisabled}>
-            Apply
+        <span class="tips mr-xxsmall"
+              class:hidden={!isDuplicateTipShown || !isAddPanelShown}>
+            Duplicate types cannot be added
+        </span>
+        <Button on:click={!isAddPanelShown ? apply : add}
+                disabled={!isAddPanelShown && isApplyButtonDisabled}
+                variant={!isAddPanelShown ? 'primary' : 'secondary' }>
+            {!isAddPanelShown ? 'Apply' : 'Add'}
         </Button>
     </div>
-    
-    <!-- <div class="add-panel">
-        <Type class="item-label" weight="bold">Add a match </Type>
-        <SelectMenu bind:menuItems={optionalMatchType} bind:value={selectedOptionalMatchType} showGroupLabels/>
-    </div> -->
 
 </div>
 
@@ -41,7 +62,8 @@
 
     import { tick } from 'svelte';
 	import { GlobalCSS } from 'figma-plugin-ds-svelte';
-	import { Button, Input, SelectMenu, SelectItem, Type, OnboardingTip } from 'figma-plugin-ds-svelte';
+	import { Button, Input, SelectMenu, Type, Icon, IconPlus, IconBack } from 'figma-plugin-ds-svelte';
+    // import { fade } from 'svelte/transition';
 
     const defaultFontStyles = ['Regular', 'Plain', 'Book']
 	let fontsNameCache = [] 
@@ -54,7 +76,7 @@
         {"value":"english","label":"English","group":'Language',"selected":false},
         {"value":"chinese","label":"Chinese","group":'Language',"selected":false},
         {"value":"portuguese","label":"Portuguese","group":'Language',"selected":false},
-        {"value":"digits","label":"Digits","group":'Content Type',"selected":true}
+        {"value":"digits","label":"Digits","group":'Content Type',"selected":false}
     ]
     let selectedOptionalMatchType
     let isApplyButtonDisabled = true
@@ -70,15 +92,13 @@
             name: 'chinese',
             fontFamily: '',
             fontStyle: ''
-        },
-        {
-            label: 'Digits',
-            name: 'digits',
-            fontFamily: '',
-            fontStyle: ''
         }
     ]
     let settingsValueOldCache = []
+    let isAddPanelShown = false
+    let isDuplicateTipShown = false
+
+    $: selectedOptionalMatchType, hideDuplicateTip()
 
 	onmessage = (event) => {
 
@@ -145,6 +165,23 @@
         })
 
         parent.postMessage({ pluginMessage: { type: 'apply', data: simplifiedSettings } }, '*')
+
+    }
+
+    function add() {
+
+        const {value, label} = selectedOptionalMatchType
+
+        if (!settings.find(i => i.name === value)) {
+
+            settings = [...settings, {name: value, label, fontFamily: '', fontStyle: ''}]
+            showSettingPanel()
+
+        } else {
+
+            showDuplicateTip()
+
+        }
 
     }
     
@@ -230,6 +267,32 @@
 
     }
 
+    function showAddPanel() {
+
+        isAddPanelShown = true
+
+    }
+
+    function showSettingPanel() {
+
+
+        isAddPanelShown = false
+        selectedOptionalMatchType = null
+        
+    }
+
+    function showDuplicateTip() {
+
+        isDuplicateTipShown = true
+
+    }
+
+    function hideDuplicateTip() {
+
+        isDuplicateTipShown = false
+
+    }
+
 </script>
 
 <style>
@@ -242,10 +305,39 @@
 
 }
 
-.setting-area {
+.main {
 
     flex: auto;
+    position: relative;
+
+}
+
+.setting-area, .add-area {
+
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
     overflow: auto;
+
+}
+
+.setting-item {
+
+    position: relative;
+
+}
+
+.setting-item:not(:last-child)::after {
+
+    content: '';
+    position: absolute;
+    height: 1px;
+    width: calc(100% - var(--size-xxsmall));
+    bottom: -1px;
+    left: calc(var(--size-xxsmall));
+    background-color: var(--black1);
 
 }
 
@@ -258,6 +350,19 @@
     border-top: 1px solid var(--black1);
     margin: 0 calc(-1 * var(--size-xxsmall));
     padding: var(--size-xxsmall);
+
+}
+
+:global(.add-button) {
+
+    margin-right: auto;
+    border-radius: var(--border-radius-small);
+
+}
+
+:global(.add-button:hover) {
+
+    background-color: var(--hover-fill);
 
 }
 
@@ -320,7 +425,7 @@
 
 }
 
-.enable-apply-tips {
+.tips {
 
     font-size: 10px;
     color: var(--black3-opaque);
@@ -330,7 +435,7 @@
 
 }
 
-.enable-apply-tips.hidden {
+.tips.hidden {
 
     display: none;
 

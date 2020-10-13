@@ -31,7 +31,7 @@ const regExpSet = {
     portuguese: /[a-zA-Z\u00C0-\u00ff]+/g,
     digits: /[0-9]+/g
 };
-figma.showUI(__html__, { width: 230, height: 340 });
+figma.showUI(__html__, { width: 240, height: 340 });
 figma.listAvailableFontsAsync().then(result => {
     figma.ui.postMessage({
         type: 'loaded-fonts-list',
@@ -74,12 +74,14 @@ function handleApply(fontSettings) {
                 const fontStyleToBeApplied = { family, style };
                 const targetRegExp = regExpSet[setting.name];
                 // console.log(node.characters.match(targetRegExp))
-                node.characters.match(targetRegExp)
-                    .forEach((matchedCharacters) => {
-                    // console.log(matchedCharacters)
-                    const index = node.characters.indexOf(matchedCharacters);
-                    node.setRangeFontName(index, index + matchedCharacters.length, fontStyleToBeApplied);
-                });
+                const matchedPart = node.characters.match(targetRegExp);
+                if (matchedPart) {
+                    matchedPart.forEach((matchedCharacters) => {
+                        // console.log(matchedCharacters)
+                        const index = node.characters.indexOf(matchedCharacters);
+                        node.setRangeFontName(index, index + matchedCharacters.length, fontStyleToBeApplied);
+                    });
+                }
             });
         });
     });
