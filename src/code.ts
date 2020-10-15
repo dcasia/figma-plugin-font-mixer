@@ -83,17 +83,12 @@ async function handleApply(fontSettings) {
             if (!family) return
 
             const fontStyleToBeApplied: FontName = {family, style}
-            const targetRegExp = regExpSet[setting.name];
-
-            // console.log(node.characters.match(targetRegExp))
-        
+            const targetRegExp = regExpSet[setting.name]
             const matchedPart = node.characters.match(targetRegExp)
             
             if (matchedPart) {
 
                 matchedPart.forEach((matchedCharacters) => {
-        
-                    // console.log(matchedCharacters)
             
                     const index = node.characters.indexOf(matchedCharacters)
             
@@ -111,39 +106,48 @@ async function handleApply(fontSettings) {
 
 function preloadFontsOnNodes(nodes: TextNode[]) {
 
-    return Promise.all(nodes.map(async (node) => {
+    return Promise.all(nodes.map((node) => {
 
-        // console.log(node)
+        const fontNames = collectFontNamesOnNode(node)
 
-        if (node.fontName !== figma.mixed) {
+        console.log(fontNames)
 
-            await figma.loadFontAsync(node.fontName)
-    
-        } else {
-    
-            const length = node.characters.length
-    
-            /**
-             * todo: use a way like binary search to reduce the traverse time
-             */
-
-            for (let currentCharterIndex = 0; currentCharterIndex < length; currentCharterIndex++) {
-    
-                const fontName = node.getRangeFontName(currentCharterIndex, currentCharterIndex + 1)
-                
-                // console.log(fontName)
-
-                if (fontName !== figma.mixed) {
-    
-                    await figma.loadFontAsync(fontName)
-    
-                }
-    
-            }
-    
-        }
+        return Promise.all(fontNames.map(fontName => figma.loadFontAsync(fontName)))
 
     }))
+
+}
+
+function collectFontNamesOnNode(node, range?): FontName[] {
+
+    range = range || [0, node.characters.length]
+
+    let result
+
+    if (range[1] > range[0]) {
+
+        result = node.getRangeFontName(...range)
+
+    }
+
+    if (result && result !== figma.mixed) {
+
+        return [result]
+
+    } else if (result && result === figma.mixed) {
+
+        const middlePointInRange = Math.ceil((range[1] + range[0])/2)
+
+        return [
+            ...collectFontNamesOnNode(node, [range[0], middlePointInRange]),
+            ...collectFontNamesOnNode(node, [middlePointInRange, range[1]])
+        ]
+
+    } else {
+
+        return []
+
+    }
 
 }
 
