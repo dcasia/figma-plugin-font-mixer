@@ -32,8 +32,15 @@ figma.ui.onmessage = msg => {
 
 }
 
+decideIfApplyEnabled()
 
 figma.on('selectionchange', () => {
+
+    decideIfApplyEnabled()
+    
+})
+
+function decideIfApplyEnabled () {
 
     const selectedTextNodes = getCurrentSelectedTextNodes()
 
@@ -50,7 +57,8 @@ figma.on('selectionchange', () => {
         })
 
     }
-})
+
+}
 
 function getCurrentSelectedTextNodes(): TextNode[] {
 

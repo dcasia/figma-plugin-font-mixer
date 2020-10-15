@@ -39,7 +39,8 @@
                 <Type class="item-label" weight="bold">Add a new match type</Type>
                 <SelectMenu bind:menuItems={optionalMatchType}
                             bind:value={selectedOptionalMatchType}
-                            showGroupLabels/>
+                            showGroupLabels
+                            placeholder="Select a type"/>
                 <!-- <Disclosure>
                     <DisclosureItem title="Custom type">Content here</DisclosureItem>
                 </Disclosure>  -->
@@ -387,6 +388,7 @@
     top: var(--size-xxsmall);
     right: 0;
     opacity: 0;
+    border-radius: var(--border-radius-small);
 
 }
 
@@ -477,6 +479,7 @@
 
     background-color: var(--grey);
     margin-bottom: var(--size-xxxsmall);
+    border-radius: var(--border-radius-small);
 
 }
 
