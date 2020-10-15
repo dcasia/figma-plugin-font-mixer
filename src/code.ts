@@ -67,8 +67,6 @@ function getCurrentSelectedTextNodes(): TextNode[] {
 }
 
 async function handleApply(fontSettings) {
-
-    // console.log(fontSettings)
     
     const selectedTextNodes = getCurrentSelectedTextNodes()
 
@@ -87,6 +85,8 @@ async function handleApply(fontSettings) {
             const matchedPart = node.characters.match(targetRegExp)
             
             if (matchedPart) {
+
+                console.log(matchedPart)
 
                 matchedPart.forEach((matchedCharacters) => {
             
@@ -108,7 +108,9 @@ function preloadFontsOnNodes(nodes: TextNode[]) {
 
     return Promise.all(nodes.map((node) => {
 
-        const fontNames = collectFontNamesOnNode(node)
+        let fontNames = collectFontNamesOnNode(node)
+
+        fontNames = filterDuplicateFontNames(fontNames)
 
         console.log(fontNames)
 
@@ -169,5 +171,21 @@ function preloadFontsOnSettings(settings) {
         }
 
     }))
+
+}
+
+function filterDuplicateFontNames (fontNameList: FontName[]) {
+
+    return fontNameList.reduce((result: FontName[], item: FontName) => {
+
+        if (!result.find(resultItem => resultItem.family === item.family && resultItem.style === item.style)) {
+
+            result.push(item)
+
+        }
+
+        return result
+
+    }, [])
 
 }
