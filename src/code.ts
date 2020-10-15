@@ -82,19 +82,22 @@ async function handleApply(fontSettings) {
 
             const fontStyleToBeApplied: FontName = {family, style}
             const targetRegExp = regExpSet[setting.name]
-            const matchedPart = node.characters.match(targetRegExp)
-            
-            if (matchedPart) {
+            let matchedPart = []
+            let singleMatchedPart: RegExpExecArray | undefined
 
-                console.log(matchedPart)
+            while ((singleMatchedPart = targetRegExp.exec(node.characters)) !== null) {
+                
+                matchedPart.push([singleMatchedPart.index, targetRegExp.lastIndex])
 
-                matchedPart.forEach((matchedCharacters) => {
+            }
             
-                    const index = node.characters.indexOf(matchedCharacters)
+            if (matchedPart.length) {
+
+                matchedPart.forEach((ranges) => {
             
-                    node.setRangeFontName(index, index + matchedCharacters.length, fontStyleToBeApplied)
+                    node.setRangeFontName(ranges[0], ranges[1], fontStyleToBeApplied)
             
-                })    
+                }) 
 
             }
             
@@ -111,8 +114,6 @@ function preloadFontsOnNodes(nodes: TextNode[]) {
         let fontNames = collectFontNamesOnNode(node)
 
         fontNames = filterDuplicateFontNames(fontNames)
-
-        console.log(fontNames)
 
         return Promise.all(fontNames.map(fontName => figma.loadFontAsync(fontName)))
 
