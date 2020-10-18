@@ -15,7 +15,8 @@
 	                        	       placeholder='Search a font name'
                                        bind:value={fontFamily}
                                        on:input={handleInput}
-                                       on:keydown={handleInputKeydown}/>
+                                       on:keydown={handleInputKeydown}
+                                       on:focus={handleInputFocus}/>
                                 <SelectMenu class="font-style-selector"
                                             bind:menuItems={fontStylesForMenu[hasMatchedFontFamily[index] ? fontFamily : '_default']}
                                             disabled={!hasMatchedFontFamily[index]}
@@ -41,9 +42,9 @@
                             bind:value={selectedOptionalMatchType}
                             showGroupLabels
                             placeholder="Select a type"/>
-                <!-- <Disclosure>
-                    <DisclosureItem title="Custom type">Content here</DisclosureItem>
-                </Disclosure>  -->
+                <!-- <div class="add-area-advanced">
+
+                </div> -->
             </div>
         {/if}
     </div>
@@ -73,7 +74,7 @@
 
     import { tick } from 'svelte';
 	import { GlobalCSS } from 'figma-plugin-ds-svelte';
-	import { Button, Input, SelectMenu, Type, Icon, IconPlus, IconBack, IconMinus } from 'figma-plugin-ds-svelte';
+	import { Button, Input, SelectMenu, Type, Icon, IconPlus, IconBack, IconMinus, Disclosure, DisclosureItem } from 'figma-plugin-ds-svelte';
     // import { fade } from 'svelte/transition';
 
     const defaultFontStyles = ['Regular', 'Plain', 'Book']
@@ -243,7 +244,7 @@
         settingsValueOldCache[index] = value
     }
 
-    function handleInputKeydown(e){
+    function handleInputKeydown(e) {
 
         const index = getInputElementIndex(e)
         const element = getInputElement(index)
@@ -259,6 +260,20 @@
 
     }
 
+    function handleInputFocus(e) {
+
+        const selectionEndIndex = e.currentTarget.value.length
+        const index = getInputElementIndex(e)
+        const inputElement = getInputElement(index)
+
+        if (selectionEndIndex > 0) {
+
+            inputElement.setSelectionRange(0, selectionEndIndex)
+
+        }
+        
+    }
+    
     function getInputElementIndex(e) {
 
         return +e.currentTarget.id.match(/\d/g)[0]
