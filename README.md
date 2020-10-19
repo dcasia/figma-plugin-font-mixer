@@ -35,4 +35,5 @@ import SvgName from './image.svg';
 ## Todos
 1. Add custom regular expression support as an advanced function
 2. Support local storage
-3. ...
+3. Support Deep selection
+4. Support multiple setting group

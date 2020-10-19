@@ -3,24 +3,32 @@
     <div class="main">
         {#if !isAddPanelShown}
             <div class="setting-area">
-                    {#each settings as {label, name, fontFamily, fontStyle}, index }
+                    {#each settings as {label, name, fontFamily, fontStyle, fontSize, fontColor}, index }
                         <div class="setting-item pt-xxsmall pb-xxsmall">
                             <Type class="item-label" weight="bold">{label}</Type>
                             <Icon class="remove-button"
                                   iconName={IconMinus}
                                   on:click={removeSettingItem(name)}/>
                             <div class="item-setting">
-                                <Input id="input-{index}"
-                                       class="input ml-xxsmall mr-xxsmall"
+                                <Input id="font-family-input-{index}"
+                                       class="ml-xxsmall mr-xxsmall"
 	                        	       placeholder='Search a font name'
                                        bind:value={fontFamily}
                                        on:input={handleInput}
                                        on:keydown={handleInputKeydown}
                                        on:focus={handleInputFocus}/>
-                                <SelectMenu class="font-style-selector"
+                                <div class="font-style-area flex justify-content-between align-items-center">
+                                    <SelectMenu class="font-weight-selector"
                                             bind:menuItems={fontStylesForMenu[hasMatchedFontFamily[index] ? fontFamily : '_default']}
                                             disabled={!hasMatchedFontFamily[index]}
                                             bind:value={fontStyle}/>
+                                    <Input id="font-weight-input-{index}"
+                                            class="font-size-selector"
+                                            placeholder='Font size'
+                                            bind:value={fontSize}
+                                            on:keydown={handleInputKeydown}
+                                            on:focus={handleInputFocus}/>
+                                </div>
 	                        </div>
                         </div>
                     {/each}
@@ -100,13 +108,17 @@
             label: 'English',
             name: 'english',
             fontFamily: '',
-            fontStyle: ''
+            fontStyle: '',
+            fontSize: '',
+            fontColor: ''
         },
         {
             label: 'Chinese',
             name: 'chinese',
             fontFamily: '',
-            fontStyle: ''
+            fontStyle: '',
+            fontSize: '',
+            fontColor: ''
         }
     ]
     let settingsValueOldCache = []
@@ -114,6 +126,7 @@
     let isDuplicateTipShown = false
 
     $: selectedOptionalMatchType, hideDuplicateTip()
+    // $: settings, console.log(settings)
 
 	onmessage = (event) => {
 
@@ -173,9 +186,9 @@
 
         const simplifiedSettings = settings.map((setting) => {
             
-            const {label, name, fontFamily, fontStyle} = setting
+            const {label, name, fontFamily, fontStyle, fontSize} = setting
 
-            return {label, name, fontFamily, fontStyle: fontStyle.value}
+            return {label, name, fontFamily, fontStyle: fontStyle.value, fontSize: +fontSize}
 
         })
 
@@ -246,12 +259,14 @@
 
     function handleInputKeydown(e) {
 
-        const index = getInputElementIndex(e)
-        const element = getInputElement(index)
+        const id = e.currentTarget.id
+        const inputElement = document.querySelector(`#${id}`)
+
+        console.log(e.currentTarget.value)
 
         switch (e.key) {
             case 'Enter':
-                element.blur()
+                inputElement.blur()
                 break;
         
             default:
@@ -262,12 +277,13 @@
 
     function handleInputFocus(e) {
 
+        const id = e.currentTarget.id
+        const inputElement = document.querySelector(`#${id}`)
         const selectionEndIndex = e.currentTarget.value.length
-        const index = getInputElementIndex(e)
-        const inputElement = getInputElement(index)
 
         if (selectionEndIndex > 0) {
 
+            inputElement.setSelectionRange(0, 0)
             inputElement.setSelectionRange(0, selectionEndIndex)
 
         }
@@ -282,7 +298,7 @@
 
     function getInputElement(index) {
 
-        return document.querySelector(`#input-${index}`)
+        return document.querySelector(`#font-family-input-${index}`)
 
     }
 
@@ -511,5 +527,28 @@
     white-space: nowrap;
 
 }
+
+.font-style-area > :global(div) {
+
+    flex: auto;
+    margin-top: var(--size-xxsmall);
+
+}
+
+.font-style-area > :global(div:nth-child(1)) {
+
+    flex-basis: 65%;
+
+}
+
+.font-style-area > :global(div:nth-child(2)) {
+
+    flex-basis: 35%;
+    margin-left: var(--size-xxsmall);
+
+}
+
+
+
 
 </style>
