@@ -17,17 +17,26 @@
                                        on:input={handleInput}
                                        on:keydown={handleInputKeydown}
                                        on:focus={handleInputFocus}/>
-                                <div class="font-style-area flex justify-content-between align-items-center">
-                                    <SelectMenu class="font-weight-selector"
-                                            bind:menuItems={fontStylesForMenu[hasMatchedFontFamily[index] ? fontFamily : '_default']}
-                                            disabled={!hasMatchedFontFamily[index]}
-                                            bind:value={fontStyle}/>
+                                <SelectMenu class="font-weight-selector mt-xxsmall"
+                                       bind:menuItems={fontStylesForMenu[hasMatchedFontFamily[index] ? fontFamily : '_default']}
+                                       disabled={!hasMatchedFontFamily[index]}
+                                       bind:value={fontStyle}/>
+                                <div class="font-style-flex-area flex justify-content-between align-items-center mt-xxsmall">
                                     <Input id="font-weight-input-{index}"
-                                            class="font-size-selector"
+                                            class="font-size-input"
                                             placeholder='Font size'
                                             bind:value={fontSize}
                                             on:keydown={handleInputKeydown}
                                             on:focus={handleInputFocus}/>
+                                    <div class="font-color-container">
+                                        <div class="font-color-indicator"/>
+                                        <Input id="font-color-input-{index}"
+                                               class="font-color-input"
+                                               placeholder='#00000'
+                                               bind:value={fontColor}
+                                               on:keydown={handleInputKeydown}
+                                               on:focus={handleInputFocus}/>
+                                    </div>
                                 </div>
 	                        </div>
                         </div>
@@ -186,9 +195,9 @@
 
         const simplifiedSettings = settings.map((setting) => {
             
-            const {label, name, fontFamily, fontStyle, fontSize} = setting
+            const {label, name, fontFamily, fontStyle, fontSize, fontColor} = setting
 
-            return {label, name, fontFamily, fontStyle: fontStyle.value, fontSize: +fontSize}
+            return {label, name, fontFamily, fontStyle: fontStyle.value, fontSize: +fontSize, fontColor}
 
         })
 
@@ -262,7 +271,7 @@
         const id = e.currentTarget.id
         const inputElement = document.querySelector(`#${id}`)
 
-        console.log(e.currentTarget.value)
+        // console.log(e.currentTarget.value)
 
         switch (e.key) {
             case 'Enter':
@@ -348,6 +357,8 @@
 
             settings.splice(targetIndex, 1)
             settings = settings
+
+            // console.log(settings)
 
         }
 
@@ -528,26 +539,50 @@
 
 }
 
-.font-style-area > :global(div) {
+.font-style-flex-area > :global(div) {
 
     flex: auto;
-    margin-top: var(--size-xxsmall);
 
 }
 
-.font-style-area > :global(div:nth-child(1)) {
-
-    flex-basis: 65%;
-
-}
-
-.font-style-area > :global(div:nth-child(2)) {
+.font-style-flex-area > :global(div:nth-child(1)) {
 
     flex-basis: 35%;
+
+}
+
+.font-style-flex-area > :global(div:nth-child(2)) {
+
+    flex-basis: 65%;
     margin-left: var(--size-xxsmall);
 
 }
 
+:global(.font-color-input.input > input) {
+
+    padding-left: var(--size-medium);
+
+}
+
+.font-color-container {
+
+    position: relative;
+
+}
+
+.font-color-indicator {
+
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translate(var(--size-xxsmall), -50%);
+    width: var(--size-xsmall);
+    height: var(--size-xsmall);
+    background-color: black;
+    z-index: 1;
+    border-radius: 1px;
+
+}
 
 
 

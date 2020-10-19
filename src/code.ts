@@ -1,3 +1,5 @@
+import { hexToFigmaRGB } from './utils'
+
 const regExpSet: Record<string, RegExp> = {
     english: /\w+/g,
     chinese: /[\u4e00-\u9fa5]+/g,
@@ -76,14 +78,13 @@ async function handleApply(fontSettings) {
 
         fontSettings.forEach((setting: any) => {
 
-            const {fontFamily: family, fontStyle: style, fontSize: size} = setting
-
-            console.log(size)
+            const {fontFamily: family, fontStyle: style, fontSize: size, fontColor: hexColor} = setting
 
             if (!family) return
 
             const fontStyleToBeApplied: FontName = {family, style}
             const targetRegExp = regExpSet[setting.name]
+            const color = hexToFigmaRGB(hexColor)
             let singleMatchedPart: RegExpExecArray | undefined
 
             while ((singleMatchedPart = targetRegExp.exec(node.characters)) !== null) {
@@ -92,6 +93,7 @@ async function handleApply(fontSettings) {
                 const endIndex = targetRegExp.lastIndex
                 node.setRangeFontName(startIndex, endIndex, fontStyleToBeApplied)
                 node.setRangeFontSize(startIndex, endIndex, +size)
+                node.setRangeFills(startIndex, endIndex, [{type: 'SOLID', color}])
 
             }
             
