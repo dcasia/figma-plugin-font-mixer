@@ -96,8 +96,9 @@
     
 
     const rgbToHex = (r, g, b) => [r, g, b].map(x => {
-        const hex = x.toString(16)
-        return hex.length === 1 ? '0' + hex : hex
+        let hex = x.toString(16)
+        hex = hex.length === 1 ? '0' + hex : hex
+        return hex
     }).join('')
     const defaultFontStyles = ['Regular', 'Plain', 'Book']
 	let fontsNameCache = [] 
@@ -149,8 +150,9 @@
 
         } else {
 
-            const [r,g,b,a] = setting.fontColor.match(/[0-9\.]+/g)
-            setting.fontColor = rgbToHex(+r,+g,+b) || setting.fontColor
+            const [r,g,b,a] = setting.fontColor.match(/[0-9\.]+/g) || []
+            
+            if (r && g && b) setting.fontColor = rgbToHex(+r,+g,+b)
 
         }
     }))
