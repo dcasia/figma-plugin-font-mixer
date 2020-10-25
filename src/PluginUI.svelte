@@ -3,7 +3,7 @@
     <div class="main">
         {#if !isAddPanelShown}
             <div class="setting-area">
-                    {#each settings as {label, name, fontFamily, fontStyle, fontSize, fontColor}, index }
+                    {#each settings as {label, name, fontFamily, fontStyle, fontSize, fontColor, fontOpacity}, index }
                         <div class="setting-item pt-xxsmall pb-xxsmall">
                             <Type class="item-label" weight="bold">{label}</Type>
                             <Icon class="remove-button"
@@ -26,11 +26,18 @@
                                             on:focus={handleInputFocus}/>
                                     <div class="font-color-container">
                                         <div class="font-color-indicator"
+                                             class:has-border={fontColor === 'ffffff' || fontColor === 'fff'}
                                              style="background-color:#{fontColor};"/>
                                         <Input id="font-color-input-{index}"
                                                class="font-color-input"
                                                placeholder='Color'
                                                bind:value={fontColor}
+                                               on:keydown={handleInputKeydown}
+                                               on:focus={handleInputFocus}/>
+                                        <Input id="font-color-opacity-input-{index}"
+                                               class="font-color-opacity-input"
+                                               placeholder='Opacity'
+                                               bind:value={fontOpacity}
                                                on:keydown={handleInputKeydown}
                                                on:focus={handleInputFocus}/>
                                     </div>
@@ -125,7 +132,8 @@
             fontFamily: '',
             fontStyle: '',
             fontSize: '',
-            fontColor: ''
+            fontColor: '',
+            fontOpacity: '100%'
         },
         {
             label: 'Chinese',
@@ -133,7 +141,8 @@
             fontFamily: '',
             fontStyle: '',
             fontSize: '',
-            fontColor: ''
+            fontColor: '',
+            fontOpacity: '100%'
         }
     ]
     let settingsValueOldCache = []
@@ -142,7 +151,7 @@
 
     $: selectedOptionalMatchType, hideDuplicateTip()
     $: settings.forEach((setting => {
-        setting.fontSize = setting.fontSize.replace(/[^0-9]/, '')
+        setting.fontSize = setting.fontSize.replace(/[^0-9]/g, '')
 
         if (!setting.fontColor.includes('rgb')) {
 
@@ -155,6 +164,9 @@
             if (r && g && b) setting.fontColor = rgbToHex(+r,+g,+b)
 
         }
+
+        setting.fontOpacity = setting.fontOpacity.replace(/[^0-9%\.]/g, '').replace(/([0-9]$)/, '$1%')
+
     }))
 
 	onmessage = (event) => {
@@ -233,7 +245,7 @@
 
         if (!settings.find(i => i.name === value)) {
 
-            settings = [...settings, {name: value, label, fontFamily: '', fontStyle: ''}]
+            settings = [...settings, {name: value, label, fontFamily: '', fontStyle: '', fontSize: '', fontColor: '', fontOpacity: '100%'}]
             showSettingPanel()
 
         } else {
@@ -584,9 +596,16 @@
 
 }
 
+:global(.font-color-opacity-input) {
+
+    flex-basis: 40%;
+
+}
+
 .font-color-container {
 
     position: relative;
+    display: flex;
 
 }
 
@@ -601,6 +620,12 @@
     background-color: black;
     z-index: 1;
     border-radius: 1px;
+
+}
+
+.font-color-indicator.has-border {
+
+    box-shadow: 0 0 0 1px var(--black1);;
 
 }
 
