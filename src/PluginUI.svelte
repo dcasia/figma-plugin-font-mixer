@@ -17,27 +17,28 @@
                                        on:input={handleInput}
                                        on:keydown={handleInputKeydown}
                                        on:focus={handleInputFocus}/>
-                                <SelectMenu class="font-weight-selector mt-xxsmall"
-                                       bind:menuItems={fontStylesForMenu[hasMatchedFontFamily[index] ? fontFamily : '_default']}
-                                       disabled={!hasMatchedFontFamily[index]}
-                                       bind:value={fontStyle}/>
                                 <div class="font-style-flex-area flex justify-content-between align-items-center mt-xxsmall">
                                     <Input id="font-weight-input-{index}"
                                             class="font-size-input"
-                                            placeholder='Font size'
+                                            placeholder='Size'
                                             bind:value={fontSize}
                                             on:keydown={handleInputKeydown}
                                             on:focus={handleInputFocus}/>
                                     <div class="font-color-container">
-                                        <div class="font-color-indicator"/>
+                                        <div class="font-color-indicator"
+                                             style="background-color:#{fontColor};"/>
                                         <Input id="font-color-input-{index}"
                                                class="font-color-input"
-                                               placeholder='#00000'
+                                               placeholder='Color'
                                                bind:value={fontColor}
                                                on:keydown={handleInputKeydown}
                                                on:focus={handleInputFocus}/>
                                     </div>
                                 </div>
+                                <SelectMenu class="font-weight-selector mt-xxsmall"
+                                       bind:menuItems={fontStylesForMenu[hasMatchedFontFamily[index] ? fontFamily : '_default']}
+                                       disabled={!hasMatchedFontFamily[index]}
+                                       bind:value={fontStyle}/>
 	                        </div>
                         </div>
                     {/each}
@@ -92,8 +93,12 @@
     import { tick } from 'svelte';
 	import { GlobalCSS } from 'figma-plugin-ds-svelte';
 	import { Button, Input, SelectMenu, Type, Icon, IconPlus, IconBack, IconMinus, Disclosure, DisclosureItem } from 'figma-plugin-ds-svelte';
-    // import { fade } from 'svelte/transition';
+    
 
+    const rgbToHex = (r, g, b) => [r, g, b].map(x => {
+        const hex = x.toString(16)
+        return hex.length === 1 ? '0' + hex : hex
+    }).join('')
     const defaultFontStyles = ['Regular', 'Plain', 'Book']
 	let fontsNameCache = [] 
     let fontsList = []
@@ -135,7 +140,20 @@
     let isDuplicateTipShown = false
 
     $: selectedOptionalMatchType, hideDuplicateTip()
-    // $: settings, console.log(settings)
+    $: settings.forEach((setting => {
+        setting.fontSize = setting.fontSize.replace(/[^0-9]/, '')
+
+        if (!setting.fontColor.includes('rgb')) {
+
+            setting.fontColor = setting.fontColor.replace('#', '')   
+
+        } else {
+
+            const [r,g,b,a] = setting.fontColor.match(/[0-9\.]+/g)
+            setting.fontColor = rgbToHex(+r,+g,+b) || setting.fontColor
+
+        }
+    }))
 
 	onmessage = (event) => {
 
@@ -197,7 +215,7 @@
             
             const {label, name, fontFamily, fontStyle, fontSize, fontColor} = setting
 
-            return {label, name, fontFamily, fontStyle: fontStyle.value, fontSize: +fontSize, fontColor}
+            return {label, name, fontFamily, fontStyle: fontStyle.value, fontSize, fontColor}
 
         })
 

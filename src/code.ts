@@ -1,4 +1,4 @@
-import { hexToFigmaRGB } from './utils'
+import { hexToFigmaRgb } from './utils'
 
 const regExpSet: Record<string, RegExp> = {
     english: /\w+/g,
@@ -78,22 +78,24 @@ async function handleApply(fontSettings) {
 
         fontSettings.forEach((setting: any) => {
 
+            const targetRegExp = regExpSet[setting.name]
+            let figmaFontName: FontName, figmaColor: RGB, figmaSize: number
+            let singleMatchedPart: RegExpExecArray | undefined
+
             const {fontFamily: family, fontStyle: style, fontSize: size, fontColor: hexColor} = setting
 
-            if (!family) return
-
-            const fontStyleToBeApplied: FontName = {family, style}
-            const targetRegExp = regExpSet[setting.name]
-            const color = hexToFigmaRGB(hexColor)
-            let singleMatchedPart: RegExpExecArray | undefined
+            if (family && style) figmaFontName = {family, style}
+            figmaColor = hexToFigmaRgb(hexColor)
+            figmaSize = +size
 
             while ((singleMatchedPart = targetRegExp.exec(node.characters)) !== null) {
                 
                 const startIndex = singleMatchedPart.index
                 const endIndex = targetRegExp.lastIndex
-                node.setRangeFontName(startIndex, endIndex, fontStyleToBeApplied)
-                node.setRangeFontSize(startIndex, endIndex, +size)
-                node.setRangeFills(startIndex, endIndex, [{type: 'SOLID', color}])
+                
+                if (figmaFontName) node.setRangeFontName(startIndex, endIndex, figmaFontName)
+                if (figmaSize) node.setRangeFontSize(startIndex, endIndex, figmaSize)
+                if (figmaColor) node.setRangeFills(startIndex, endIndex, [{type: 'SOLID', color: figmaColor}])
 
             }
             
@@ -155,11 +157,11 @@ function preloadFontsOnSettings(settings) {
     return Promise.all(settings.map((setting) => {
 
         const {fontFamily: family, fontStyle: style} = setting
-        const fontStyleToBeApplied: FontName = {family, style}
+        const figmaFontName: FontName = {family, style}
 
         if (family) {
 
-            return figma.loadFontAsync(fontStyleToBeApplied)
+            return figma.loadFontAsync(figmaFontName)
 
         } else {
 

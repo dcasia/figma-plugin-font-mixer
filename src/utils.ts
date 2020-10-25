@@ -1,18 +1,8 @@
-export function hexToFigmaRGB(h: string): {r: number, g: number, b: number} {
-    
-    let r = '', g = '', b = '';
-  
-    if (h.length == 4) {
-      r = "0x" + h[1] + h[1];
-      g = "0x" + h[2] + h[2];
-      b = "0x" + h[3] + h[3];
-  
-    } else if (h.length == 7) {
-      r = "0x" + h[1] + h[2];
-      g = "0x" + h[3] + h[4];
-      b = "0x" + h[5] + h[6];
-    }
+export const hexToFigmaRgb = hex => hex.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (m, r, g, b) => '#' + r + r + g + g + b + b)
+    .substring(1).match(/.{2}/g)
+    .map(x => parseInt(x, 16)/255)
 
-    return {r: +r/255, g: +g/255, b: +b/255}
-
-}
+export const rgbToHex = (r, g, b) => '#' + [r, g, b].map(x => {
+        const hex = x.toString(16)
+        return hex.length === 1 ? '0' + hex : hex
+    }).join('')
