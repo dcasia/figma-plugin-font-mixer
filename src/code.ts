@@ -79,13 +79,14 @@ async function handleApply(fontSettings) {
         fontSettings.forEach((setting: any) => {
 
             const targetRegExp = regExpSet[setting.name]
-            let figmaFontName: FontName, figmaColor: RGB, figmaSize: number
+            let figmaFontName: FontName, figmaColor: RGB, figmaOpacity: number, figmaSize: number
             let singleMatchedPart: RegExpExecArray | undefined
 
-            const {fontFamily: family, fontStyle: style, fontSize: size, fontColor: hexColor} = setting
+            const {fontFamily: family, fontStyle: style, fontSize: size, fontColor: hexColor, fontOpacity: opacity} = setting
 
             if (family && style) figmaFontName = {family, style}
             figmaColor = hexToFigmaRgb(hexColor)
+            figmaOpacity = (+opacity.replace('%', ''))/100
             figmaSize = +size
 
             while ((singleMatchedPart = targetRegExp.exec(node.characters)) !== null) {
@@ -95,7 +96,7 @@ async function handleApply(fontSettings) {
                 
                 if (figmaFontName) node.setRangeFontName(startIndex, endIndex, figmaFontName)
                 if (figmaSize) node.setRangeFontSize(startIndex, endIndex, figmaSize)
-                if (figmaColor) node.setRangeFills(startIndex, endIndex, [{type: 'SOLID', color: figmaColor}])
+                if (figmaColor) node.setRangeFills(startIndex, endIndex, [{type: 'SOLID', color: figmaColor, opacity: figmaOpacity}])
 
             }
             

@@ -36,10 +36,11 @@
                                                on:focus={handleInputFocus}/>
                                         <Input id="font-color-opacity-input-{index}"
                                                class="font-color-opacity-input"
-                                               placeholder='Opacity'
                                                bind:value={fontOpacity}
                                                on:keydown={handleInputKeydown}
-                                               on:focus={handleInputFocus}/>
+                                               on:focus={handleInputFocus}
+                                               on:blur={handleInputBlur}
+                                               on:blur={()=>handleOpacityValue(index)}/>
                                     </div>
                                 </div>
                                 <SelectMenu class="font-weight-selector mt-xxsmall"
@@ -165,7 +166,7 @@
 
         }
 
-        setting.fontOpacity = setting.fontOpacity.replace(/[^0-9%\.]/g, '').replace(/([0-9]$)/, '$1%')
+        setting.fontOpacity = setting.fontOpacity.replace(/[^0-9%\.]/g, '')
 
     }))
 
@@ -227,9 +228,9 @@
 
         const simplifiedSettings = settings.map((setting) => {
             
-            const {label, name, fontFamily, fontStyle, fontSize, fontColor} = setting
+            const {label, name, fontFamily, fontStyle, fontSize, fontColor, fontOpacity} = setting
 
-            return {label, name, fontFamily, fontStyle: fontStyle.value, fontSize, fontColor}
+            return {label, name, fontFamily, fontStyle: fontStyle.value, fontSize, fontColor, fontOpacity}
 
         })
 
@@ -329,6 +330,19 @@
 
         }
         
+    }
+
+    function handleInputBlur(e) {
+
+    }
+
+    function handleOpacityValue(index) {
+
+        const matchResult = settings[index].fontOpacity.match(/[0-9\.]+/)
+        const numeric = matchResult && matchResult[0] || 100
+
+        settings[index].fontOpacity = numeric + '%'
+
     }
     
     function getInputElementIndex(e) {
