@@ -164,6 +164,8 @@
             
             if (r && g && b) setting.fontColor = rgbToHex(+r,+g,+b)
 
+            if (a) setting.fontOpacity = a + '%'
+
         }
 
         setting.fontOpacity = setting.fontOpacity.replace(/[^0-9%\.]/g, '')
