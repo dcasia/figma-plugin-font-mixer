@@ -164,7 +164,7 @@
             
             if (r && g && b) setting.fontColor = rgbToHex(+r,+g,+b)
 
-            if (a) setting.fontOpacity = a + '%'
+            if (+a) setting.fontOpacity = Math.max(Math.min(+a * 100, 100), 0) + '%'
 
         }
 
