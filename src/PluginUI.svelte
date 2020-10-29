@@ -453,9 +453,9 @@
     content: '';
     position: absolute;
     height: 1px;
-    width: calc(100% - var(--size-xxsmall));
     bottom: -1px;
-    left: calc(var(--size-xxsmall));
+    left: 0;
+    width: 100%;
     background-color: var(--black1);
 
 }
