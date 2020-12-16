@@ -6,7 +6,8 @@ const regExpSet: Record<string, RegExp> = {
     portuguese: /[a-zA-Z\u00C0-\u00ff]+/g,
     korean: /([\uac00-\ud7af]|[\u1100-\u11ff]|[\u3130-\u318f]|[\ua960-\ua97f]|[\ud7b0-\ud7ff])+/g,
     japanese: /([一-龠]|[ぁ-ゔ]|[ァ-ヴー]|[々〆〤])+/ug,
-    russian: /^[\u0400-\u04FF]+$/g,
+    russian: /[\u0400-\u04FF]+/g,
+    thai: /[\u0E00-\u0E7F]+/g,
     digits: /[0-9]+/g
 }
 
