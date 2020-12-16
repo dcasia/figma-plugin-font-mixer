@@ -11,7 +11,7 @@ const regExpSet: Record<string, RegExp> = {
     digits: /[0-9]+/g
 }
 
-figma.showUI(__html__, {width: 260, height: 366 });
+figma.showUI(__html__, {width: 260, height: 368 });
 
 figma.listAvailableFontsAsync().then(result => {
 	figma.ui.postMessage({
