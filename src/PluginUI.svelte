@@ -122,6 +122,7 @@
         {"value":"japanese","label":"Japanese","group":'Language',"selected":false},
         {"value":"korean","label":"Korean","group":'Language',"selected":false},
         {"value":"russian","label":"Russian","group":'Language',"selected":false},
+        {"value":"thai","label":"Thai","group":'Language',"selected":false},
         {"value":"digits","label":"Digits","group":'Content Type',"selected":false}
     ]
     let selectedOptionalMatchType
@@ -406,8 +407,6 @@
             settings.splice(targetIndex, 1)
             settings = settings
 
-            // console.log(settings)
-
         }
 
     }
@@ -436,7 +435,8 @@
     position: absolute;
     top: 0;
     left: 0;
-    width: 100%;
+    width: calc(100% + var(--size-xxsmall));
+    padding-right: var(--size-xxsmall);
     height: 100%;
     overflow: auto;
 
@@ -595,13 +595,13 @@
 
 .font-style-flex-area > :global(div:nth-child(1)) {
 
-    flex-basis: 35%;
+    flex-basis: 27%;
 
 }
 
 .font-style-flex-area > :global(div:nth-child(2)) {
 
-    flex-basis: 65%;
+    flex-basis: 73%;
     margin-left: var(--size-xxsmall);
 
 }
