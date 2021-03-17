@@ -101,13 +101,9 @@
     import { tick } from 'svelte';
 	import { GlobalCSS } from 'figma-plugin-ds-svelte';
 	import { Button, Input, SelectMenu, Type, Icon, IconPlus, IconBack, IconMinus, Disclosure, DisclosureItem } from 'figma-plugin-ds-svelte';
-    
+    import { rgbToHex } from './utils.ts'
+    import { onMount, onDestroy } from 'svelte'
 
-    const rgbToHex = (r, g, b) => [r, g, b].map(x => {
-        let hex = x.toString(16)
-        hex = hex.length === 1 ? '0' + hex : hex
-        return hex
-    }).join('')
     const defaultFontStyles = ['Regular', 'Plain', 'Book']
 	let fontsNameCache = [] 
     let fontsList = []
@@ -153,6 +149,7 @@
 
     $: selectedOptionalMatchType, hideDuplicateTip()
     $: settings.forEach((setting => {
+
         setting.fontSize = setting.fontSize.replace(/[^0-9]/g, '')
 
         if (!setting.fontColor.includes('rgb')) {
@@ -172,6 +169,20 @@
         setting.fontOpacity = setting.fontOpacity.replace(/[^0-9%\.]/g, '')
 
     }))
+
+    // onMount(() => {
+
+    //     settings = localStorage.getItem('settings')
+
+    // })
+
+    // onDestroy(() => {
+
+    //     localStorage.setItem('settings', JSON.stringify(settings))
+
+    //     console.log(localStorage.getItem('settings'))
+
+    // })
 
 	onmessage = (event) => {
 
@@ -263,7 +274,8 @@
     function handleInput(e) {
 
         const index = getInputElementIndex(e)
-        const value = settings[index].fontFamily
+        // const value = settings[index].fontFamily
+        const value = e.target.value
         const regExp = new RegExp(`^${value}`, 'i')
 
         settingsValueOldCache[index] = settingsValueOldCache[index] || ''
