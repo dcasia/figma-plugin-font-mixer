@@ -10,6 +10,7 @@ const regExpSet: Record<string, RegExp> = {
     thai: /[\u0E00-\u0E7F]+/g,
     digits: /[0-9]+/g
 }
+let sessionSetting: Record<string, any>[] | null = null
 
 figma.showUI(__html__, {width: 260, height: 368 });
 
@@ -27,10 +28,23 @@ figma.ui.onmessage = msg => {
             
             handleApply(msg.data)
 
-            break;
+            break
+        
+        case 'save-setting':
+
+            handleSaveSessionSetting(msg.data)
+
+            break
+
+        case 'get-setting':
+
+            figma.ui.postMessage({
+                type: 'restore-setting',
+                data: handleGetSetting()
+            })
     
         default:
-            break;
+            break
     }
 
 }
@@ -41,6 +55,12 @@ figma.on('selectionchange', () => {
 
     decideIfApplyEnabled()
     
+})
+
+figma.on('close', () => {
+
+    saveSettingIntoPluginData(sessionSetting)
+
 })
 
 function decideIfApplyEnabled () {
@@ -188,5 +208,26 @@ function filterDuplicateFontNames (fontNameList: FontName[]) {
         return result
 
     }, [])
+
+}
+
+
+function handleSaveSessionSetting(setting) {
+
+    sessionSetting = setting
+
+}
+
+function saveSettingIntoPluginData(setting) {
+
+    figma.root.setPluginData('setting', JSON.stringify(setting))
+
+}
+
+function handleGetSetting() {
+
+    const data = figma.root.getPluginData('setting')
+
+    return JSON.parse(data)
 
 }

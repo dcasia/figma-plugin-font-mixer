@@ -105,8 +105,8 @@
     import { onMount, onDestroy } from 'svelte'
 
     const defaultFontStyles = ['Regular', 'Plain', 'Book']
-    // A middle cache array used to remove duplicate font items
-	let fontsNameCache = [] 
+    // A middle cache array that is used to remove duplicate font items and never be used to render views
+	let _fontsNameCache = [] 
     let fontsList = []
     let fontStylesForMenu = {
         _default: [{value: '', label: 'Regular', selected: true}]
@@ -149,6 +149,7 @@
     let isDuplicateTipShown = false
 
     $: selectedOptionalMatchType, hideDuplicateTip()
+    $: settings, saveSettingToPluginData()
     $: settings.forEach((setting => {
 
         // Filter out non-numeric value in font size input box
@@ -174,19 +175,11 @@
 
     }))
 
-    // onMount(() => {
+    onMount(() => {
 
-    //     settings = localStorage.getItem('settings')
-
-    // })
-
-    // onDestroy(() => {
-
-    //     localStorage.setItem('settings', JSON.stringify(settings))
-
-    //     console.log(localStorage.getItem('settings'))
-
-    // })
+        restoreSettingFromPluginData()
+        
+    })
 
 	onmessage = (event) => {
 
@@ -200,6 +193,10 @@
             case 'disable-apply':
                 isApplyButtonDisabled = true
                 break
+            case 'restore-setting':
+                console.log('restore', eventData)
+                if (eventData) settings = eventData
+                break
 			case 'loaded-fonts-list':
                 // Convert multiple separate font styles under the same font family to one common entry
 				fontsList = eventData.reduce((result, item) => {
@@ -207,8 +204,8 @@
                     const fontFamily = item.fontName.family
                     const fontStyle = item.fontName.style
 
-					if (!fontsNameCache.includes(fontFamily)) {
-						fontsNameCache.push(fontFamily)
+					if (!_fontsNameCache.includes(fontFamily)) {
+						_fontsNameCache.push(fontFamily)
 						result.push({family: fontFamily, styles: [fontStyle]})
 					} else {
                         result.find(font => font.family === fontFamily).styles.push(fontStyle)
@@ -426,6 +423,20 @@
             settings = settings
 
         }
+
+    }
+
+    function restoreSettingFromPluginData() {
+
+        parent.postMessage({ pluginMessage: { type: 'get-setting' } }, '*')
+
+    }
+
+    function saveSettingToPluginData() {
+
+        console.log('save', settings)
+
+        parent.postMessage({ pluginMessage: { type: 'save-setting', data: settings } }, '*')
 
     }
 
