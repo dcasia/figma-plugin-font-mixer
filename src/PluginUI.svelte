@@ -81,7 +81,7 @@
               on:click={!isAddPanelShown ? showAddPanel : showSettingPanel}/>
         <span class="tips mr-xxsmall"
               class:hidden={!isApplyButtonDisabled || isAddPanelShown}>
-            Select nodes contain editable text
+            Select nodes contain editable text to enable
         </span>
         <span class="tips mr-xxsmall"
               class:hidden={!isDuplicateTipShown || !isAddPanelShown}>
@@ -105,6 +105,7 @@
     import { onMount, onDestroy } from 'svelte'
 
     const defaultFontStyles = ['Regular', 'Plain', 'Book']
+    // A middle cache array used to remove duplicate font items
 	let fontsNameCache = [] 
     let fontsList = []
     let fontStylesForMenu = {
@@ -150,14 +151,17 @@
     $: selectedOptionalMatchType, hideDuplicateTip()
     $: settings.forEach((setting => {
 
+        // Filter out non-numeric value in font size input box
         setting.fontSize = setting.fontSize.replace(/[^0-9]/g, '')
 
         if (!setting.fontColor.includes('rgb')) {
 
+            // Filter out hash symbol in color input box
             setting.fontColor = setting.fontColor.replace('#', '')   
 
         } else {
 
+            // Convert RGBA value to Hex value
             const [r,g,b,a] = setting.fontColor.match(/[0-9\.]+/g) || []
             
             if (r && g && b) setting.fontColor = rgbToHex(+r,+g,+b)
@@ -197,6 +201,7 @@
                 isApplyButtonDisabled = true
                 break
 			case 'loaded-fonts-list':
+                // Convert multiple separate font styles under the same font family to one common entry
 				fontsList = eventData.reduce((result, item) => {
 
                     const fontFamily = item.fontName.family
@@ -209,23 +214,25 @@
                         result.find(font => font.family === fontFamily).styles.push(fontStyle)
                     }
 					return result
+
                 }, [])
 
+                // Convert font styles under each font family to a sepcific shape array that select menu component able to consume
                 fontStylesForMenu = {
                     ...fontStylesForMenu,
                     ...fontsList.reduce((result, font) => {
 
-                    if (font.family) {
+                        if (font.family) {
 
-                        const defaultFontStyle = decideDefaultFontStyle(font.styles)
+                            const defaultFontStyle = decideDefaultFontStyle(font.styles)
 
-                        result[font.family] = font.styles.map((style, index) => {
-                            return {value: style, label: style, group: null, selected: style === defaultFontStyle}
-                        })
+                            result[font.family] = font.styles.map((style, index) => {
+                                return {value: style, label: style, selected: style === defaultFontStyle}
+                            })
 
-                    }
+                        }
 
-                    return result
+                        return result
 
                     }, {})
                 }
@@ -274,7 +281,6 @@
     function handleInput(e) {
 
         const index = getInputElementIndex(e)
-        // const value = settings[index].fontFamily
         const value = e.target.value
         const regExp = new RegExp(`^${value}`, 'i')
 
@@ -554,7 +560,6 @@
 
     font-size: 10px;
     color: var(--black3-opaque);
-    width: 100px;
     text-align: right;
 
 }
