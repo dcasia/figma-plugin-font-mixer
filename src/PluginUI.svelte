@@ -194,8 +194,37 @@
                 isApplyButtonDisabled = true
                 break
             case 'restore-setting':
-                console.log('restore', eventData)
-                if (eventData) settings = eventData
+                
+                const solidfiedEventData = JSON.stringify(eventData)
+
+                if (eventData) {
+
+                    settings = eventData
+
+                    initFontHasMatchedFlag()
+
+                }
+
+                JSON.parse(solidfiedEventData).forEach(font => {
+
+                    const fontStyleToBeRestored = font.fontStyle.value
+                    
+                    fontStylesForMenu[font.fontFamily].forEach(fontStyle => {
+
+                        if (fontStyle.value === fontStyleToBeRestored) {
+
+                            fontStyle.selected = true
+
+                        } else {
+
+                            fontStyle.selected = false
+
+                        }
+
+                    })
+
+                })
+
                 break
 			case 'loaded-fonts-list':
                 // Convert multiple separate font styles under the same font family to one common entry
@@ -437,6 +466,16 @@
         console.log('save', settings)
 
         parent.postMessage({ pluginMessage: { type: 'save-setting', data: settings } }, '*')
+
+    }
+
+    function initFontHasMatchedFlag() {
+
+        settings.forEach((font, index) => {
+
+            if (font.fontFamily) hasMatchedFontFamily[index] = true
+
+        })
 
     }
 
