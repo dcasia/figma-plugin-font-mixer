@@ -3,63 +3,63 @@
     <div class="main {!isRestoreDone ? '--invisible' : ''}">
         {#if !isAddPanelShown}
             <div class="setting-area">
-                    {#each settings as {label, name, fontFamily, fontStyle, fontSize, fontColor, fontOpacity}, index }
-                        <div class="setting-item pt-xxsmall pb-xxsmall">
-                            <Type class="item-label" weight="bold">{label}</Type>
-                            <Icon class="remove-button"
-                                  iconName={IconMinus}
-                                  on:click={removeSettingItem(name)}/>
-                            <div class="item-setting">
-                                <Input id="font-family-input-{index}"
-                                       class="ml-xxsmall mr-xxsmall"
-	                        	       placeholder='Search a font name'
-                                       bind:value={fontFamily}
-                                       on:input={handleInput}
-                                       on:keydown={handleInputKeydown}
-                                       on:focus={handleInputFocus}/>
-                                <div class="font-style-flex-area flex justify-content-between align-items-center mt-xxsmall">
-                                    <Input id="font-weight-input-{index}"
-                                            class="font-size-input"
-                                            placeholder='Size'
-                                            bind:value={fontSize}
+                {#each settings as {label, name, fontFamily, fontStyle, fontSize, fontColor, fontOpacity}, index }
+                    <div class="setting-item pt-xxsmall pb-xxsmall">
+                        <Type class="item-label" weight="bold">{label}</Type>
+                        <Icon class="remove-button"
+                                iconName={IconMinus}
+                                on:click={removeSettingItem(name)}/>
+                        <div class="item-setting">
+                            <Input id="font-family-input-{index}"
+                                    class="ml-xxsmall mr-xxsmall"
+                                    placeholder='Search a font name'
+                                    bind:value={fontFamily}
+                                    on:input={handleInput}
+                                    on:keydown={handleInputKeydown}
+                                    on:focus={handleInputFocus}/>
+                            <div class="font-style-flex-area flex justify-content-between align-items-center mt-xxsmall">
+                                <Input id="font-weight-input-{index}"
+                                        class="font-size-input"
+                                        placeholder='Size'
+                                        bind:value={fontSize}
+                                        on:keydown={handleInputKeydown}
+                                        on:focus={handleInputFocus}/>
+                                <div class="font-color-container">
+                                    <div class="font-color-indicator"
+                                            class:has-border={fontColor === 'ffffff' || fontColor === 'fff'}
+                                            style="background-color:#{fontColor};"/>
+                                    <Input id="font-color-input-{index}"
+                                            class="font-color-input"
+                                            placeholder='Color'
+                                            bind:value={fontColor}
                                             on:keydown={handleInputKeydown}
                                             on:focus={handleInputFocus}/>
-                                    <div class="font-color-container">
-                                        <div class="font-color-indicator"
-                                             class:has-border={fontColor === 'ffffff' || fontColor === 'fff'}
-                                             style="background-color:#{fontColor};"/>
-                                        <Input id="font-color-input-{index}"
-                                               class="font-color-input"
-                                               placeholder='Color'
-                                               bind:value={fontColor}
-                                               on:keydown={handleInputKeydown}
-                                               on:focus={handleInputFocus}/>
-                                        <Input id="font-color-opacity-input-{index}"
-                                               class="font-color-opacity-input"
-                                               bind:value={fontOpacity}
-                                               on:keydown={handleInputKeydown}
-                                               on:focus={handleInputFocus}
-                                               on:blur={handleInputBlur}
-                                               on:blur={()=>handleOpacityValue(index)}/>
-                                    </div>
+                                    <Input id="font-color-opacity-input-{index}"
+                                            class="font-color-opacity-input"
+                                            bind:value={fontOpacity}
+                                            on:keydown={handleInputKeydown}
+                                            on:focus={handleInputFocus}
+                                            on:blur={handleInputBlur}
+                                            on:blur={()=>handleOpacityValue(index)}/>
                                 </div>
-                                <SelectMenu class="font-weight-selector mt-xxsmall"
-                                       bind:menuItems={fontStylesForMenu[hasMatchedFontFamily[index] ? fontFamily : '_default']}
-                                       disabled={!hasMatchedFontFamily[index]}
-                                       bind:value={fontStyle}/>
-	                        </div>
+                            </div>
+                            <SelectMenu class="font-weight-selector mt-xxsmall"
+                                    bind:menuItems={fontStylesForMenu[hasMatchedFontFamily[index] ? fontFamily : '_default']}
+                                    disabled={!hasMatchedFontFamily[index]}
+                                    bind:value={fontStyle}/>
                         </div>
-                    {/each}
-                    {#if !settings.length}
-                        <div class="content-in-empty-setting-panel">
-                            <Icon class="add-button-in-empty"
-                                  iconName={IconPlus}
-                                  on:click={showAddPanel}/>
-                            <p class="tip-in-empty">
-                                Click "+" to add a match type
-                            </p>
-                        </div>
-                    {/if}
+                    </div>
+                {/each}
+                {#if !settings.length}
+                    <div class="content-in-empty-setting-panel">
+                        <Icon class="add-button-in-empty"
+                                iconName={IconPlus}
+                                on:click={showAddPanel}/>
+                        <p class="tip-in-empty">
+                            Click "+" to add a match type
+                        </p>
+                    </div>
+                {/if}
             </div>
         {:else}
             <div class="add-area pt-xxsmall pb-xxsmall">
@@ -144,7 +144,7 @@
             fontOpacity: '100%'
         }
     ]
-    let settingsValueOldCache = []
+    let _settingsValueOldCache = []
     let isAddPanelShown = false
     let isDuplicateTipShown = false
     let isRestoreDone = false
@@ -317,13 +317,19 @@
         const value = e.target.value
         const regExp = new RegExp(`^${value}`, 'i')
 
-        settingsValueOldCache[index] = settingsValueOldCache[index] || ''
+        _settingsValueOldCache[index] = _settingsValueOldCache[index] || ''
 
-        if(!regExp.test(settingsValueOldCache[index])) {
+        console.log(value, _settingsValueOldCache[index])
 
-            settingsValueOldCache[index] = value
+        if(!regExp.test(_settingsValueOldCache[index])) {
+
+            console.log('keep matching')
+
+            // _settingsValueOldCache[index] = value
 
             const targetFont = fontsList.find((item) => regExp.test(item.family))
+
+            console.log(targetFont)
 
             if (targetFont) {
             
@@ -331,9 +337,11 @@
                 const selectionStartIndex = value.length
                 const selectionEndIndex = targetFontName.length
 
-                hasMatchedFontFamily[index] = true
+                console.log(selectionStartIndex, selectionEndIndex)
+
                 settings[index].fontFamily = targetFontName
-            
+                hasMatchedFontFamily[index] = true
+
                 tick().then(() => {
                     getInputElement(index).setSelectionRange(selectionStartIndex, selectionEndIndex)
                 })
@@ -350,7 +358,7 @@
 
         }
 
-        settingsValueOldCache[index] = value
+        _settingsValueOldCache[index] = value
     }
 
     function handleInputKeydown(e) {
@@ -478,7 +486,7 @@
 
         settings.forEach((font, index) => {
 
-            if (font.fontFamily) hasMatchedFontFamily[index] = true
+            if (font.fontFamily && font.fontStyle.value) hasMatchedFontFamily[index] = true
 
         })
 
