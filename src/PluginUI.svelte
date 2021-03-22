@@ -319,17 +319,9 @@
 
         _settingsValueOldCache[index] = _settingsValueOldCache[index] || ''
 
-        console.log(value, _settingsValueOldCache[index])
-
         if(!regExp.test(_settingsValueOldCache[index])) {
 
-            console.log('keep matching')
-
-            // _settingsValueOldCache[index] = value
-
             const targetFont = fontsList.find((item) => regExp.test(item.family))
-
-            console.log(targetFont)
 
             if (targetFont) {
             
@@ -337,12 +329,14 @@
                 const selectionStartIndex = value.length
                 const selectionEndIndex = targetFontName.length
 
-                console.log(selectionStartIndex, selectionEndIndex)
-
-                settings[index].fontFamily = targetFontName
-                hasMatchedFontFamily[index] = true
-
-                tick().then(() => {
+                /**
+                 * For the reason of micro task logic has been updated in Svelte > 3.20.1
+                 * The timer here is necessary to make good input&match experience
+                */
+                setTimeout(async () => {
+                    settings[index].fontFamily = targetFontName
+                    hasMatchedFontFamily[index] = true
+                    await tick()
                     getInputElement(index).setSelectionRange(selectionStartIndex, selectionEndIndex)
                 })
             
@@ -365,8 +359,6 @@
 
         const id = e.currentTarget.id
         const inputElement = document.querySelector(`#${id}`)
-
-        // console.log(e.currentTarget.value)
 
         switch (e.key) {
             case 'Enter':
