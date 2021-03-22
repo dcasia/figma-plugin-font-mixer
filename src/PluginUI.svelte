@@ -1,6 +1,6 @@
 <div class="wrapper pr-xxsmall pl-xxsmall">
 
-    <div class="main">
+    <div class="main {!isRestoreDone ? '--invisible' : ''}">
         {#if !isAddPanelShown}
             <div class="setting-area">
                     {#each settings as {label, name, fontFamily, fontStyle, fontSize, fontColor, fontOpacity}, index }
@@ -85,7 +85,7 @@
         </span>
         <span class="tips mr-xxsmall"
               class:hidden={!isDuplicateTipShown || !isAddPanelShown}>
-            Duplicate types cannot be added
+            Duplicate types may not be added
         </span>
         <Button on:click={!isAddPanelShown ? apply : add}
                 disabled={!isAddPanelShown && isApplyButtonDisabled || isAddPanelShown && !selectedOptionalMatchType}
@@ -147,6 +147,7 @@
     let settingsValueOldCache = []
     let isAddPanelShown = false
     let isDuplicateTipShown = false
+    let isRestoreDone = false
 
     $: selectedOptionalMatchType, hideDuplicateTip()
     $: settings, saveSettingToPluginData()
@@ -175,12 +176,6 @@
 
     }))
 
-    onMount(() => {
-
-        restoreSettingFromPluginData()
-        
-    })
-
 	onmessage = (event) => {
 
 		const eventType = event.data.pluginMessage.type
@@ -195,7 +190,7 @@
                 break
             case 'restore-setting':
                 
-                const solidfiedEventData = JSON.stringify(eventData)
+                const deepClonedEventData = JSON.parse(JSON.stringify(eventData))
 
                 if (eventData) {
 
@@ -205,25 +200,35 @@
 
                 }
 
-                JSON.parse(solidfiedEventData).forEach(font => {
+                if (deepClonedEventData) {
 
-                    const fontStyleToBeRestored = font.fontStyle.value
-                    
-                    fontStylesForMenu[font.fontFamily].forEach(fontStyle => {
+                    deepClonedEventData.forEach(font => {
 
-                        if (fontStyle.value === fontStyleToBeRestored) {
+                        const fontStyleToBeRestored = font.fontStyle.value
 
-                            fontStyle.selected = true
+                        if (fontStylesForMenu[font.fontFamily]) {
 
-                        } else {
+                            fontStylesForMenu[font.fontFamily].forEach(fontStyle => {
 
-                            fontStyle.selected = false
+                                if (fontStyle.value === fontStyleToBeRestored) {
+
+                                    fontStyle.selected = true
+
+                                } else {
+
+                                    fontStyle.selected = false
+
+                                }
+
+                            })
 
                         }
 
                     })
+                    
+                }
 
-                })
+                isRestoreDone = true
 
                 break
 			case 'loaded-fonts-list':
@@ -263,7 +268,8 @@
                     }, {})
                 }
 
-                // console.log(fontsList)
+                restoreSettingFromPluginData()
+
 				break
 			default:
 				break
@@ -295,6 +301,7 @@
 
             settings = [...settings, {name: value, label, fontFamily: '', fontStyle: '', fontSize: '', fontColor: '', fontOpacity: '100%'}]
             showSettingPanel()
+            unselectAll(optionalMatchType)
 
         } else {
 
@@ -463,8 +470,6 @@
 
     function saveSettingToPluginData() {
 
-        console.log('save', settings)
-
         parent.postMessage({ pluginMessage: { type: 'save-setting', data: settings } }, '*')
 
     }
@@ -475,6 +480,14 @@
 
             if (font.fontFamily) hasMatchedFontFamily[index] = true
 
+        })
+
+    }
+
+    function unselectAll(data) {
+
+        data.forEach(item => {
+            item.selected = false
         })
 
     }
@@ -495,7 +508,14 @@
 
     flex: auto;
     position: relative;
+    transition: opacity .3s;
 
+}
+
+.main.--invisible {
+
+    opacity: 0;
+        
 }
 
 .setting-area, .add-area {
@@ -611,6 +631,7 @@
     font-size: 10px;
     color: var(--black3-opaque);
     text-align: right;
+    width: 120px;
 
 }
 

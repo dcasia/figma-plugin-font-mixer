@@ -222,15 +222,11 @@ function saveSettingIntoPluginData(setting) {
 
     figma.root.setPluginData('setting', JSON.stringify(setting))
 
-    console.log('saved', setting)
-
 }
 
 function handleGetSetting() {
 
     const data = figma.root.getPluginData('setting')
-
-    console.log('got', data)
 
     return JSON.parse(data)
 
