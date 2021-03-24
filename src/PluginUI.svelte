@@ -301,7 +301,6 @@
 
             settings = [...settings, {name: value, label, fontFamily: '', fontStyle: '', fontSize: '', fontColor: '', fontOpacity: '100%'}]
             showSettingPanel()
-            unselectAll(optionalMatchType)
 
         } else {
 
@@ -434,6 +433,7 @@
 
         isAddPanelShown = false
         selectedOptionalMatchType = null
+        unselectAll(optionalMatchType)
         
     }
 
