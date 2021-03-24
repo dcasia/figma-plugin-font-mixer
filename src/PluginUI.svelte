@@ -85,23 +85,24 @@
         </span>
         <span class="tips mr-xxsmall"
               class:hidden={!isDuplicateTipShown || !isAddPanelShown}>
-            Duplicate types may not be added
+            Duplicate types cannot be added
         </span>
-        <div class="sk-fading-circle"
-             class:hidden={!isApplying}>
-            <div class="sk-circle1 sk-circle"></div>
-            <div class="sk-circle2 sk-circle"></div>
-            <div class="sk-circle3 sk-circle"></div>
-            <div class="sk-circle4 sk-circle"></div>
-            <div class="sk-circle5 sk-circle"></div>
-            <div class="sk-circle6 sk-circle"></div>
-            <div class="sk-circle7 sk-circle"></div>
-            <div class="sk-circle8 sk-circle"></div>
-            <div class="sk-circle9 sk-circle"></div>
-            <div class="sk-circle10 sk-circle"></div>
-            <div class="sk-circle11 sk-circle"></div>
-            <div class="sk-circle12 sk-circle"></div>
-        </div>
+        {#if isApplying}
+            <div class="sk-fading-circle" transition:fade>
+                <div class="sk-circle1 sk-circle"></div>
+                <div class="sk-circle2 sk-circle"></div>
+                <div class="sk-circle3 sk-circle"></div>
+                <div class="sk-circle4 sk-circle"></div>
+                <div class="sk-circle5 sk-circle"></div>
+                <div class="sk-circle6 sk-circle"></div>
+                <div class="sk-circle7 sk-circle"></div>
+                <div class="sk-circle8 sk-circle"></div>
+                <div class="sk-circle9 sk-circle"></div>
+                <div class="sk-circle10 sk-circle"></div>
+                <div class="sk-circle11 sk-circle"></div>
+                <div class="sk-circle12 sk-circle"></div>
+            </div>
+        {/if}
         <Button class="cta"
                 on:click={!isAddPanelShown ? apply : add}
                 disabled={!isAddPanelShown && isApplyButtonDisabled || isAddPanelShown && !selectedOptionalMatchType}
@@ -119,6 +120,7 @@
 	import { Button, Input, SelectMenu, Type, Icon, IconPlus, IconBack, IconMinus, Disclosure, DisclosureItem } from 'figma-plugin-ds-svelte';
     import { rgbToHex } from './utils.ts'
     import { onMount, onDestroy } from 'svelte'
+    import { fade } from 'svelte/transition';
 
     const defaultFontStyles = ['Regular', 'Plain', 'Book']
     // A middle cache array that is used to remove duplicate font items and never be used to render views
@@ -297,6 +299,8 @@
 	}
 
     function apply() {
+
+        if (isApplying) return
 
         isApplying = true
 
@@ -758,11 +762,7 @@
   width: 20px;
   height: 20px;
   position: relative;
-  margin-right: 15px;
-}
-
-.sk-fading-circle.hidden {
-    display: none;
+  margin-right: 10px;
 }
 
 .sk-fading-circle .sk-circle {
