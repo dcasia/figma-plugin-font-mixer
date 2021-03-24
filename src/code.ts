@@ -125,6 +125,10 @@ async function handleApply(fontSettings) {
 
     })
 
+    figma.ui.postMessage({
+        type: 'apply-done'
+    })
+
 }
 
 function preloadFontsOnNodes(nodes: TextNode[]) {
