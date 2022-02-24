@@ -11,7 +11,7 @@
                                 on:click={removeSettingItem(name)}/>
                         <div class="item-setting">
                             <Input id="font-family-input-{index}"
-                                    class="ml-xxsmall mr-xxsmall"
+                                    class="ml-xxsmall mr-xxsmall {hasMatchedFontFamily[index] ? '' : 'no-matched-font'}"
                                     placeholder='Search a font name'
                                     bind:value={fontFamily}
                                     on:input={handleInput}
@@ -648,6 +648,25 @@
 :global(.input) {
 
     margin: 0;
+
+}
+
+:global(.input.no-matched-font input) {
+
+    border: 1px solid var(--red);
+
+}
+
+:global(.input.no-matched-font input:hover) {
+
+    border: 1px solid var(--red);
+
+}
+
+:global(.input.no-matched-font input:active), :global(.input.no-matched-font input:focus) {
+
+    border-color: var(--red);
+    outline-color: var(--red);
 
 }
 
