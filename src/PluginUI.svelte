@@ -304,9 +304,11 @@
 
         isApplying = true
 
-        const simplifiedSettings = settings.map((setting) => {
+        const simplifiedSettings = settings.map((setting, index) => {
             
-            const {label, name, fontFamily, fontStyle, fontSize, fontColor, fontOpacity} = setting
+            let {label, name, fontFamily, fontStyle, fontSize, fontColor, fontOpacity} = setting
+
+            fontFamily = hasMatchedFontFamily[index] ? fontFamily : ''
 
             return {label, name, fontFamily, fontStyle: fontStyle.value, fontSize, fontColor, fontOpacity}
 
