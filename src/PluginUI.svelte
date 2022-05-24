@@ -210,43 +210,51 @@
             case 'apply-done':
                 isApplying = false
             case 'restore-setting':
-                
-                const deepClonedEventData = JSON.parse(JSON.stringify(eventData))
 
-                if (eventData) {
+                try {
 
-                    settings = eventData
+                    const deepClonedEventData = JSON.parse(JSON.stringify(eventData))
 
-                    initFontHasMatchedFlag()
+                    if (eventData) {
 
-                }
+                        settings = eventData
 
-                if (deepClonedEventData) {
+                        initFontHasMatchedFlag()
 
-                    deepClonedEventData.forEach(font => {
+                    }
 
-                        const fontStyleToBeRestored = font.fontStyle.value
+                    if (deepClonedEventData) {
 
-                        if (fontStylesForMenu[font.fontFamily]) {
+                        deepClonedEventData.forEach(font => {
 
-                            fontStylesForMenu[font.fontFamily].forEach(fontStyle => {
+                            const fontStyleToBeRestored = font.fontStyle.value
 
-                                if (fontStyle.value === fontStyleToBeRestored) {
+                            if (fontStylesForMenu[font.fontFamily]) {
 
-                                    fontStyle.selected = true
+                                fontStylesForMenu[font.fontFamily].forEach(fontStyle => {
 
-                                } else {
+                                    if (fontStyle.value === fontStyleToBeRestored) {
 
-                                    fontStyle.selected = false
+                                        fontStyle.selected = true
 
-                                }
+                                    } else {
 
-                            })
+                                        fontStyle.selected = false
 
-                        }
+                                    }
 
-                    })
+                                })
+
+                            }
+
+                        })
+                        
+                    }
                     
+                } catch (error) {
+                    
+                    console.error('Error when parsing settings')
+
                 }
 
                 isRestoreDone = true
