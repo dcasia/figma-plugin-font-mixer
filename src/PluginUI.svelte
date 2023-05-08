@@ -75,6 +75,12 @@
         {/if}
     </div>
 
+    {#if !isRestoreDone}
+    <div class="main-loading">
+        <Loading/>
+    </div>
+    {/if}
+
 	<div class="bottom-area pt-xxsmall pb-xxsmall">
         <Icon class="add-button"
               iconName={!isAddPanelShown ? IconPlus : IconBack}
@@ -88,20 +94,7 @@
             Duplicate types cannot be added
         </span>
         {#if isApplying}
-            <div class="sk-fading-circle" transition:fade>
-                <div class="sk-circle1 sk-circle"></div>
-                <div class="sk-circle2 sk-circle"></div>
-                <div class="sk-circle3 sk-circle"></div>
-                <div class="sk-circle4 sk-circle"></div>
-                <div class="sk-circle5 sk-circle"></div>
-                <div class="sk-circle6 sk-circle"></div>
-                <div class="sk-circle7 sk-circle"></div>
-                <div class="sk-circle8 sk-circle"></div>
-                <div class="sk-circle9 sk-circle"></div>
-                <div class="sk-circle10 sk-circle"></div>
-                <div class="sk-circle11 sk-circle"></div>
-                <div class="sk-circle12 sk-circle"></div>
-            </div>
+            <Loading />
         {/if}
         <Button class="cta"
                 on:click={!isAddPanelShown ? apply : add}
@@ -121,6 +114,7 @@
     import { rgbToHex } from './utils.ts'
     import { onMount, onDestroy } from 'svelte'
     import { fade } from 'svelte/transition';
+    import Loading from './Loading.svelte'
 
     const defaultFontStyles = ['Regular', 'Plain', 'Book']
     // A middle cache array that is used to remove duplicate font items and never be used to render views
@@ -211,6 +205,13 @@
                 isApplying = false
             case 'restore-setting':
 
+                // if no setting data transferred we can directly mark restore as done
+                // as it will use the default setting data defined in `settings` variable
+                if (!eventData) {
+                    isRestoreDone = true
+                    return
+                }
+
                 try {
 
                     const deepClonedEventData = JSON.parse(JSON.stringify(eventData))
@@ -253,7 +254,7 @@
                     
                 } catch (error) {
                     
-                    console.error('Error when parsing settings')
+                    console.error('[Font mixer]: Error when parsing settings', error)
 
                 }
 
@@ -261,40 +262,47 @@
 
                 break
 			case 'loaded-fonts-list':
-                // Convert multiple separate font styles under the same font family to one common entry
-				fontsList = eventData.reduce((result, item) => {
+
+                try {
+                    // Convert multiple separate font styles under the same font family to one common entry
+                    fontsList = eventData.reduce((result, item) => {
 
                     const fontFamily = item.fontName.family
                     const fontStyle = item.fontName.style
 
-					if (!_fontsNameCache.includes(fontFamily)) {
-						_fontsNameCache.push(fontFamily)
-						result.push({family: fontFamily, styles: [fontStyle]})
-					} else {
+                    if (!_fontsNameCache.includes(fontFamily)) {
+                        _fontsNameCache.push(fontFamily)
+                        result.push({family: fontFamily, styles: [fontStyle]})
+                    } else {
                         result.find(font => font.family === fontFamily).styles.push(fontStyle)
                     }
-					return result
+                    return result
 
-                }, [])
+                    }, [])
 
-                // Convert font styles under each font family to a sepcific shape array that select menu component able to consume
-                fontStylesForMenu = {
-                    ...fontStylesForMenu,
-                    ...fontsList.reduce((result, font) => {
+                    // Convert font styles under each font family to a sepcific shape array that select menu component able to consume
+                    fontStylesForMenu = {
+                        ...fontStylesForMenu,
+                        ...fontsList.reduce((result, font) => {
 
-                        if (font.family) {
+                            if (font.family) {
 
-                            const defaultFontStyle = decideDefaultFontStyle(font.styles)
+                                const defaultFontStyle = decideDefaultFontStyle(font.styles)
 
-                            result[font.family] = font.styles.map((style, index) => {
-                                return {value: style, label: style, selected: style === defaultFontStyle}
-                            })
+                                result[font.family] = font.styles.map((style, index) => {
+                                    return {value: style, label: style, selected: style === defaultFontStyle}
+                                })
 
-                        }
+                            }
 
-                        return result
+                            return result
 
-                    }, {})
+                        }, {})
+                    }
+                } catch (error) {
+
+                    console.error('[Font mixer]: Load fonts failed', error)
+
                 }
 
                 restoreSettingFromPluginData()
@@ -547,6 +555,13 @@
 
 }
 
+.main-loading {
+    position: fixed;
+    top: 45%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
 .main.--invisible {
 
     opacity: 0;
@@ -787,140 +802,6 @@
 
 }
 
-.sk-fading-circle {
-  width: 20px;
-  height: 20px;
-  position: relative;
-  margin-right: 10px;
-}
 
-.sk-fading-circle .sk-circle {
-  width: 100%;
-  height: 100%;
-  position: absolute;
-  left: 0;
-  top: 0;
-}
-
-.sk-fading-circle .sk-circle:before {
-  content: '';
-  display: block;
-  margin: 0 auto;
-  width: 15%;
-  height: 15%;
-  background-color: var(--blue);
-  border-radius: 100%;
-  -webkit-animation: sk-circleFadeDelay 1.2s infinite ease-in-out both;
-          animation: sk-circleFadeDelay 1.2s infinite ease-in-out both;
-}
-.sk-fading-circle .sk-circle2 {
-  -webkit-transform: rotate(30deg);
-      -ms-transform: rotate(30deg);
-          transform: rotate(30deg);
-}
-.sk-fading-circle .sk-circle3 {
-  -webkit-transform: rotate(60deg);
-      -ms-transform: rotate(60deg);
-          transform: rotate(60deg);
-}
-.sk-fading-circle .sk-circle4 {
-  -webkit-transform: rotate(90deg);
-      -ms-transform: rotate(90deg);
-          transform: rotate(90deg);
-}
-.sk-fading-circle .sk-circle5 {
-  -webkit-transform: rotate(120deg);
-      -ms-transform: rotate(120deg);
-          transform: rotate(120deg);
-}
-.sk-fading-circle .sk-circle6 {
-  -webkit-transform: rotate(150deg);
-      -ms-transform: rotate(150deg);
-          transform: rotate(150deg);
-}
-.sk-fading-circle .sk-circle7 {
-  -webkit-transform: rotate(180deg);
-      -ms-transform: rotate(180deg);
-          transform: rotate(180deg);
-}
-.sk-fading-circle .sk-circle8 {
-  -webkit-transform: rotate(210deg);
-      -ms-transform: rotate(210deg);
-          transform: rotate(210deg);
-}
-.sk-fading-circle .sk-circle9 {
-  -webkit-transform: rotate(240deg);
-      -ms-transform: rotate(240deg);
-          transform: rotate(240deg);
-}
-.sk-fading-circle .sk-circle10 {
-  -webkit-transform: rotate(270deg);
-      -ms-transform: rotate(270deg);
-          transform: rotate(270deg);
-}
-.sk-fading-circle .sk-circle11 {
-  -webkit-transform: rotate(300deg);
-      -ms-transform: rotate(300deg);
-          transform: rotate(300deg); 
-}
-.sk-fading-circle .sk-circle12 {
-  -webkit-transform: rotate(330deg);
-      -ms-transform: rotate(330deg);
-          transform: rotate(330deg); 
-}
-.sk-fading-circle .sk-circle2:before {
-  -webkit-animation-delay: -1.1s;
-          animation-delay: -1.1s; 
-}
-.sk-fading-circle .sk-circle3:before {
-  -webkit-animation-delay: -1s;
-          animation-delay: -1s; 
-}
-.sk-fading-circle .sk-circle4:before {
-  -webkit-animation-delay: -0.9s;
-          animation-delay: -0.9s; 
-}
-.sk-fading-circle .sk-circle5:before {
-  -webkit-animation-delay: -0.8s;
-          animation-delay: -0.8s; 
-}
-.sk-fading-circle .sk-circle6:before {
-  -webkit-animation-delay: -0.7s;
-          animation-delay: -0.7s; 
-}
-.sk-fading-circle .sk-circle7:before {
-  -webkit-animation-delay: -0.6s;
-          animation-delay: -0.6s; 
-}
-.sk-fading-circle .sk-circle8:before {
-  -webkit-animation-delay: -0.5s;
-          animation-delay: -0.5s; 
-}
-.sk-fading-circle .sk-circle9:before {
-  -webkit-animation-delay: -0.4s;
-          animation-delay: -0.4s;
-}
-.sk-fading-circle .sk-circle10:before {
-  -webkit-animation-delay: -0.3s;
-          animation-delay: -0.3s;
-}
-.sk-fading-circle .sk-circle11:before {
-  -webkit-animation-delay: -0.2s;
-          animation-delay: -0.2s;
-}
-.sk-fading-circle .sk-circle12:before {
-  -webkit-animation-delay: -0.1s;
-          animation-delay: -0.1s;
-}
-
-@-webkit-keyframes sk-circleFadeDelay {
-  0%, 39%, 100% { opacity: 0; }
-  40% { opacity: 1; }
-}
-
-@keyframes sk-circleFadeDelay {
-  0%, 39%, 100% { opacity: 0; }
-  40% { opacity: 1; } 
-}
 
 </style>

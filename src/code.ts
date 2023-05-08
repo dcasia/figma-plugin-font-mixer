@@ -38,9 +38,11 @@ figma.ui.onmessage = msg => {
 
         case 'get-setting':
 
+            const setting = handleGetSetting()
+
             figma.ui.postMessage({
                 type: 'restore-setting',
-                data: handleGetSetting()
+                data: setting
             })
     
         default:
@@ -232,6 +234,10 @@ function handleGetSetting() {
 
     const data = figma.root.getPluginData('setting')
 
-    return JSON.parse(data)
+    if (data) {
+        return JSON.parse(data)
+    } else {
+        return null
+    }
 
 }
