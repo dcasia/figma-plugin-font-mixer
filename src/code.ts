@@ -1,14 +1,16 @@
 import { hexToFigmaRgb } from './utils'
 
 const regExpSet: Record<string, RegExp> = {
-    english: /\w+/g,
-    chinese: /[\u4e00-\u9fa5]+/g,
+    english: /[\w!"'\(\)*+,-./:;<=>?\[\]^_`{|}~]+/g,
+    chinese: /[\u4e00-\u9fa5\u3001-\u3004\u3008-\u3011\u3014-\u301F\uff01-\uff03\uff05-\uff0C\uff0e\uff1a-\uff1b\uff1f\uff20\uff3b-\uff40\uff5b-\uff5e\uffe5]+/g,
     portuguese: /[a-zA-Z\u00C0-\u00ff]+/g,
     korean: /([\uac00-\ud7af]|[\u1100-\u11ff]|[\u3130-\u318f]|[\ua960-\ua97f]|[\ud7b0-\ud7ff])+/g,
     japanese: /([一-龠]|[ぁ-ゔ]|[ァ-ヴー]|[々〆〤])+/ug,
     russian: /[\u0400-\u04FF]+/g,
     thai: /[\u0E00-\u0E7F]+/g,
-    digits: /[0-9]+/g
+    digits: /[0-9]+/g,
+    chineseSymbol: /[\u3001-\u3004\u3008-\u3011\u3014-\u301F\uff01-\uff03\uff05-\uff0C\uff0e\uff1a-\uff1b\uff1f\uff20\uff3b-\uff40\uff5b-\uff5e\uffe5]+/g,
+    englishSymbol: /[!"'\(\)*+,-./:;<=>?\[\]^_`{|}~]+/g,
 }
 let sessionSetting: Record<string, any>[] | null = null
 

@@ -132,7 +132,9 @@
         {"value":"korean","label":"Korean","group":'Language',"selected":false},
         {"value":"russian","label":"Russian","group":'Language',"selected":false},
         {"value":"thai","label":"Thai","group":'Language',"selected":false},
-        {"value":"digits","label":"Digits","group":'Content Type',"selected":false}
+        {"value":"digits","label":"Digits","group":'Content Type',"selected":false},
+        {"value":"chineseSymbol","label":"Chinese symbol","group":'Content Type',"selected":false},
+        {"value":"englishSymbol","label":"English symbol","group":'Content Type',"selected":false}
     ]
     let selectedOptionalMatchType
     let isApplyButtonDisabled = true
